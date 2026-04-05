@@ -1,4 +1,4 @@
-package org.example.model.common;
+package com.sportsmanager.model.common;
 
 public class Fixture {
 }

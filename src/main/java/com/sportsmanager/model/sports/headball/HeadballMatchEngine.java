@@ -1,4 +1,4 @@
-package org.example.model.common.sports.headball;
+package com.sportsmanager.model.sports.headball;
 
 public class HeadballMatchEngine {
 }

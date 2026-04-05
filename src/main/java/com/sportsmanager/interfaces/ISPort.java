@@ -1,4 +1,4 @@
-package org.example.interfaces;
+package com.sportsmanager.interfaces;
 
 public class ISPort {
 }

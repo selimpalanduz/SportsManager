@@ -1,4 +1,4 @@
-package org.example.ui;
+package com.sportsmanager.ui;
 
 public class MainMenuController {
 }
