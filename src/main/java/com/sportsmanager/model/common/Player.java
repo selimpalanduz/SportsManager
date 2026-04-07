@@ -3,15 +3,14 @@ package com.sportsmanager.model.common;
 public abstract class Player {
     private String name;
     private int overallSkill;
-    private int injuryDuration; // Kalan sakatlık maç sayısı
+    private int injuryDuration;
 
     public Player(String name, int overallSkill) {
         this.name = name;
         this.overallSkill = overallSkill;
-        this.injuryDuration = 0; // Başlangıçta sakat değil
+        this.injuryDuration = 0;
     }
 
-    // Her spor dalı (Headball, Football) oyuncu pozisyonunu kendi belirleyecek
     public abstract String getPosition();
 
     public String getName() {
@@ -47,4 +46,5 @@ public abstract class Player {
             this.injuryDuration--;
         }
     }
+    //DenizKaraman461
 }

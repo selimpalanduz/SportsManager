@@ -34,7 +34,6 @@ public class MatchResult {
         return total;
     }
 
-    // Kazanan takımı döner. Beraberlikse null döner.
     public Team getWinner(Team homeTeam, Team awayTeam) {
         int homeScore = getTotalHomeScore();
         int awayScore = getTotalAwayScore();
@@ -44,7 +43,8 @@ public class MatchResult {
         } else if (awayScore > homeScore) {
             return awayTeam;
         } else {
-            return null; // Beraberlik durumu
+            return null;
         }
     }
+    //DenizKaraman461
 }

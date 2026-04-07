@@ -11,7 +11,7 @@ public class Match {
     public Match(Team homeTeam, Team awayTeam) {
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
-        this.isPlayed = false; // Maç başlangıçta oynanmamıştır
+        this.isPlayed = false;
     }
 
     public Team getHomeTeam() {
@@ -52,7 +52,7 @@ public class Match {
 
     public void setResult(MatchResult result) {
         this.result = result;
-        this.isPlayed = true; // Sonuç girildiğinde maç oynanmış sayılır
+        this.isPlayed = true;
     }
 
     public boolean isPlayed() {
@@ -62,4 +62,5 @@ public class Match {
     public void setPlayed(boolean played) {
         isPlayed = played;
     }
+    //DenizKaraman461
 }

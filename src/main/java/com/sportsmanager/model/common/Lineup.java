@@ -36,4 +36,5 @@ public class Lineup {
     public void setTactic(Tactic tactic) {
         this.tactic = tactic;
     }
+    //DenizKaraman461
 }

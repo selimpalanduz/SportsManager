@@ -24,4 +24,5 @@ public class PeriodResult {
     public void setAwayScore(int awayScore) {
         this.awayScore = awayScore;
     }
+    //DenizKaraman461
 }

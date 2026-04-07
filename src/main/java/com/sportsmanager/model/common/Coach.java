@@ -9,7 +9,6 @@ public abstract class Coach {
         this.experience = experience;
     }
 
-    // Antrenman mantığı spora göre değişeceği için soyut bırakıyoruz
     public abstract void trainPlayer(Player player);
 
     public String getName() {
@@ -27,4 +26,5 @@ public abstract class Coach {
     public void setExperience(int experience) {
         this.experience = experience;
     }
+    //DenizKaraman461
 }

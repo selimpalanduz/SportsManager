@@ -7,7 +7,7 @@ public abstract class Team {
     private String name;
     private List<Player> roster;
     private List<Coach> coaches;
-    private int points; // Ligdeki genel puanı
+    private int points;
 
     public Team(String name) {
         this.name = name;
@@ -16,7 +16,6 @@ public abstract class Team {
         this.points = 0;
     }
 
-    // Kadro geçerliliği (örn. 7 as, 3 yedek) seçilen spora göre değişecek
     public abstract boolean isValidLineup(Lineup lineup);
 
     public String getName() {
@@ -62,4 +61,5 @@ public abstract class Team {
     public void addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
     }
+    //DenizKaraman461
 }
