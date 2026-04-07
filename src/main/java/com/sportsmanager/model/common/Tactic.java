@@ -1,4 +1,7 @@
 package com.sportsmanager.model.common;
 
-public class Tactic {
+public enum Tactic {
+    OFFENSIVE,
+    DEFENSIVE,
+    BALANCED
 }
