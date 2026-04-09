@@ -1,50 +1,36 @@
 package com.sportsmanager.model.common;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MatchResult {
+    private Team homeTeam;
+    private Team awayTeam;
     private List<PeriodResult> periods;
 
-    public MatchResult() {
-        this.periods = new ArrayList<>();
-    }
-
-    public void addPeriodResult(PeriodResult periodResult) {
-        this.periods.add(periodResult);
-    }
-
-    public List<PeriodResult> getPeriods() {
-        return periods;
+    public MatchResult(Team homeTeam, Team awayTeam, List<PeriodResult> periods) {
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+        this.periods = periods;
     }
 
     public int getTotalHomeScore() {
-        int total = 0;
-        for (PeriodResult pr : periods) {
-            total += pr.getHomeScore();
-        }
-        return total;
+        return periods.stream().mapToInt(PeriodResult::getHomeScore).sum();
     }
 
     public int getTotalAwayScore() {
-        int total = 0;
-        for (PeriodResult pr : periods) {
-            total += pr.getAwayScore();
-        }
-        return total;
+        return periods.stream().mapToInt(PeriodResult::getAwayScore).sum();
     }
 
-    public Team getWinner(Team homeTeam, Team awayTeam) {
-        int homeScore = getTotalHomeScore();
-        int awayScore = getTotalAwayScore();
-
-        if (homeScore > awayScore) {
-            return homeTeam;
-        } else if (awayScore > homeScore) {
-            return awayTeam;
-        } else {
-            return null;
-        }
+    public Team getWinner() {
+        int home = getTotalHomeScore();
+        int away = getTotalAwayScore();
+        if (home > away) return homeTeam;
+        if (away > home) return awayTeam;
+        return null;
     }
+
+    public List<PeriodResult> getPeriods() { return periods; }
+    public Team getHomeTeam() { return homeTeam; }
+    public Team getAwayTeam() { return awayTeam; }
     //DenizKaraman461
 }

@@ -1,9 +1,9 @@
 package com.sportsmanager.model.common;
 
 public abstract class Player {
-    private String name;
-    private int overallSkill;
-    private int injuryDuration;
+    protected String name;
+    protected int overallSkill;
+    protected int injuryDuration;
 
     public Player(String name, int overallSkill) {
         this.name = name;

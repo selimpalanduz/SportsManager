@@ -4,16 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Team {
-    private String name;
-    private List<Player> roster;
-    private List<Coach> coaches;
-    private int points;
+    protected String name;
+    protected List<Player> roster;
+    protected List<Coach> coaches;
+    protected int points;
 
     public Team(String name) {
         this.name = name;
         this.roster = new ArrayList<>();
         this.coaches = new ArrayList<>();
         this.points = 0;
+    }
+
+    public List<Player> getAvailablePlayers() {
+        List<Player> available = new ArrayList<>();
+        for (Player p : roster) {
+            if (!p.isInjured()) available.add(p);
+        }
+        return available;
     }
 
     public abstract boolean isValidLineup(Lineup lineup);

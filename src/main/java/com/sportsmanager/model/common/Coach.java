@@ -1,8 +1,8 @@
 package com.sportsmanager.model.common;
 
 public abstract class Coach {
-    private String name;
-    private int experience;
+    protected String name;
+    protected int experience;
 
     public Coach(String name, int experience) {
         this.name = name;
