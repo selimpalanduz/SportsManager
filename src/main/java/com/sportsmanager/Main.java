@@ -1,17 +1,42 @@
 package com.sportsmanager;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import com.sportsmanager.core.GameManager;
+import com.sportsmanager.core.SportFactory;
+import com.sportsmanager.interfaces.IMatchEngine;
+import com.sportsmanager.interfaces.ISport;
+import com.sportsmanager.model.common.League;
+import com.sportsmanager.model.common.Match;
+import com.sportsmanager.model.sports.football.FootballCoach;
+import com.sportsmanager.model.sports.football.FootballPlayer;
+import com.sportsmanager.model.sports.football.FootballTeam;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        ISport sport = SportFactory.createSport("football");
+        IMatchEngine engine = SportFactory.createEngine("football");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        System.out.println("Sport: " + sport.getSportName());
+        System.out.println("Number of periods: " + sport.getNumberOfPeriods());
+        System.out.println("Squad size: " + sport.getSquadSize());
+
+        FootballTeam home = new FootballTeam("Galatasaray");
+        FootballTeam away = new FootballTeam("Fenerbahce");
+
+        for (int i = 0; i < 11; i++) {
+            home.addPlayer(new FootballPlayer("Home Player " + i, 75));
+            away.addPlayer(new FootballPlayer("Away Player " + i, 72));
         }
+
+        home.addCoach(new FootballCoach("Okan Buruk", 10));
+        away.addCoach(new FootballCoach("Mourinho", 20));
+
+        Match match = new Match(home, away);
+
+        League league = new League("Super League");
+        league.addTeam(home);
+        league.addTeam(away);
+
+        GameManager gm = new GameManager(sport, engine, league);
+        gm.playMatch(match);
     }
 }
