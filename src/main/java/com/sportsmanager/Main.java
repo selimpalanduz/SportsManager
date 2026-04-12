@@ -1,5 +1,5 @@
-package com.sportsmanager;
 
+package com.sportsmanager;
 import com.sportsmanager.core.GameManager;
 import com.sportsmanager.core.SportFactory;
 import com.sportsmanager.interfaces.IMatchEngine;
