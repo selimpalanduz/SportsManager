@@ -1,42 +1,29 @@
 package com.sportsmanager.ui;
-import com.sportsmanager.model.common.Match;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import com.sportsmanager.core.GameManager;
-import com.sportsmanager.core.LeagueManager;
-import com.sportsmanager.core.SportFactory;
-import com.sportsmanager.interfaces.IMatchEngine;
-import com.sportsmanager.interfaces.ISport;
-import com.sportsmanager.model.common.League;
-import com.sportsmanager.model.common.StandingsEntry;
-import com.sportsmanager.model.common.Team;
-import com.sportsmanager.model.sports.football.FootballCoach;
-import com.sportsmanager.model.sports.football.FootballPlayer;
-import com.sportsmanager.model.sports.football.FootballTeam;
-import com.sportsmanager.model.sports.volleyball.VolleyballCoach;
-import com.sportsmanager.model.sports.volleyball.VolleyballPlayer;
-import com.sportsmanager.model.sports.volleyball.VolleyballTeam;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import com.sportsmanager.core.*;
+import com.sportsmanager.interfaces.*;
+import com.sportsmanager.model.common.*;
+import com.sportsmanager.model.sports.football.*;
+import com.sportsmanager.model.sports.volleyball.*;
+import javafx.geometry.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.beans.property.*;
+import java.util.*;
 
 public class LeagueController {
 
     private Stage stage;
     private String sportType;
     private ISport sport;
-    private IMatchEngine engine;
     private League league;
-    private GameManager gameManager;
     private LeagueManager leagueManager;
+    private int currentWeek = 1;
+    private Label weekLabel;
+    private Team userTeam;
 
     private static final String[] TEAM_NAMES = {
         "Galatasaray", "Fenerbahce", "Besiktas", "Trabzonspor",
@@ -44,18 +31,20 @@ public class LeagueController {
     };
 
     private static final String[] PLAYER_NAMES = {
-        "Selim", "Deniz", "Ali", "Veli", "Hasan", "Huseyin",
-        "Mustafa", "Ibrahim", "Yusuf", "Emre", "Burak", "Arda",
-        "Kerem", "Hakan", "Merih", "Ozan", "Caglar", "Orkun"
+        "Ahmet", "Mehmet", "Ali", "Veli", "Hasan", "Huseyin",
+        "Mustafa", "Ibrahim", "Yusuf", "Emre", "Burak", "Arda"
     };
 
-    public LeagueController(Stage stage, String sportType) {
-        this.stage = stage;
-        this.sportType = sportType;
-        this.sport = SportFactory.createSport(sportType);
-        this.engine = SportFactory.createEngine(sportType);
-        this.leagueManager = new LeagueManager();
-        setupLeague();
+    public LeagueController(Stage stage, String sportType, Team userTeam) {
+    this.stage = stage;
+    this.sportType = sportType;
+    this.userTeam = userTeam;
+    this.sport = SportFactory.createSport(sportType);
+    this.leagueManager = new LeagueManager();
+    setupLeague();
+    }
+    public List<Team> getTeams() {
+    return league.getTeams();
     }
 
     private void setupLeague() {
@@ -67,110 +56,126 @@ public class LeagueController {
             if (sportType.equalsIgnoreCase("football")) {
                 FootballTeam ft = new FootballTeam(name);
                 for (int i = 0; i < 11; i++) {
-                    String playerName = PLAYER_NAMES[random.nextInt(PLAYER_NAMES.length)];
-                    ft.addPlayer(new FootballPlayer(playerName, 60 + random.nextInt(30)));
+                    ft.addPlayer(new FootballPlayer(
+                        PLAYER_NAMES[random.nextInt(PLAYER_NAMES.length)],
+                        60 + random.nextInt(30)
+                    ));
                 }
-                ft.addCoach(new FootballCoach("Coach " + name, random.nextInt(10) + 1));
+                ft.addCoach(new FootballCoach("Coach", random.nextInt(10) + 1));
                 team = ft;
             } else {
                 VolleyballTeam vt = new VolleyballTeam(name);
                 for (int i = 0; i < 6; i++) {
-                    String playerName = PLAYER_NAMES[random.nextInt(PLAYER_NAMES.length)];
-                    vt.addPlayer(new VolleyballPlayer(playerName, 60 + random.nextInt(30)));
+                    vt.addPlayer(new VolleyballPlayer(
+                        PLAYER_NAMES[random.nextInt(PLAYER_NAMES.length)],
+                        60 + random.nextInt(30)
+                    ));
                 }
-                vt.addCoach(new VolleyballCoach("Coach " + name, random.nextInt(10) + 1));
+                vt.addCoach(new VolleyballCoach("Coach", random.nextInt(10) + 1));
                 team = vt;
             }
             teams.add(team);
         }
 
         league = leagueManager.createLeague(sport.getSportName() + " League", teams);
-        gameManager = new GameManager(sport, engine, league);
+        List<StandingsEntry> standings = leagueManager.calcStandings(league);
+        league.setStandings(standings);
     }
 
     public void show() {
         Label title = new Label(sport.getSportName() + " League");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        TableView<StandingsEntry> table = new TableView<>();
+        weekLabel = new Label("Week " + currentWeek);
+        weekLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #aaaaaa;");
 
-        TableColumn<StandingsEntry, String> teamCol = new TableColumn<>("Team");
-        teamCol.setCellValueFactory(data ->
-            new javafx.beans.property.SimpleStringProperty(data.getValue().getTeam().getName()));
-        teamCol.setPrefWidth(150);
+        TableView<StandingsEntry> table = createTable();
 
-        TableColumn<StandingsEntry, Integer> playedCol = new TableColumn<>("P");
-        playedCol.setCellValueFactory(new PropertyValueFactory<>("played"));
-        playedCol.setPrefWidth(40);
-
-        TableColumn<StandingsEntry, Integer> winsCol = new TableColumn<>("W");
-        winsCol.setCellValueFactory(new PropertyValueFactory<>("wins"));
-        winsCol.setPrefWidth(40);
-
-        TableColumn<StandingsEntry, Integer> drawsCol = new TableColumn<>("D");
-        drawsCol.setCellValueFactory(new PropertyValueFactory<>("draws"));
-        drawsCol.setPrefWidth(40);
-
-        TableColumn<StandingsEntry, Integer> lossesCol = new TableColumn<>("L");
-        lossesCol.setCellValueFactory(new PropertyValueFactory<>("losses"));
-        lossesCol.setPrefWidth(40);
-
-        TableColumn<StandingsEntry, Integer> pointsCol = new TableColumn<>("Pts");
-        pointsCol.setCellValueFactory(new PropertyValueFactory<>("points"));
-        pointsCol.setPrefWidth(50);
-
-        table.getColumns().addAll(teamCol, playedCol, winsCol, drawsCol, lossesCol, pointsCol);
-        updateTable(table);
-
-        Button simulateWeekBtn = new Button("Simulate Next Week");
-        simulateWeekBtn.setPrefWidth(200);
-        simulateWeekBtn.setStyle("-fx-font-size: 14px;");
-        simulateWeekBtn.setOnAction(e -> {
+        Button simulateBtn = new Button("Simulate Week " + currentWeek);
+        simulateBtn.setPrefWidth(200);
+        simulateBtn.setPrefHeight(45);
+        simulateBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
+        simulateBtn.setOnAction(e -> {
             simulateWeek();
             updateTable(table);
+            currentWeek++;
+            weekLabel.setText("Week " + currentWeek);
+            simulateBtn.setText("Simulate Week " + currentWeek);
         });
 
-        Button backBtn = new Button("Back to Menu");
+        Button backBtn = new Button("Back");
+        backBtn.setPrefWidth(100);
+        backBtn.setPrefHeight(45);
+        backBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
         backBtn.setOnAction(e -> {
             MainMenuController menu = new MainMenuController(stage);
             menu.show();
         });
 
-        HBox buttons = new HBox(10, simulateWeekBtn, backBtn);
+        HBox buttons = new HBox(15, simulateBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(15);
+        VBox layout = new VBox(20);
         layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(20));
-        layout.getChildren().addAll(title, table, buttons);
+        layout.setPadding(new Insets(30));
+        layout.setStyle("-fx-background-color: #1E1E2E;");
+        layout.getChildren().addAll(title, weekLabel, table, buttons);
 
-        Scene scene = new Scene(layout, 700, 500);
+        Scene scene = new Scene(layout, 750, 550);
         stage.setScene(scene);
         stage.show();
     }
 
-    private int currentWeek = 1;
+    private TableView<StandingsEntry> createTable() {
+        TableView<StandingsEntry> table = new TableView<>();
+        table.setStyle("-fx-background-color: #2D2D3E;");
+
+        TableColumn<StandingsEntry, String> teamCol = new TableColumn<>("Team");
+        teamCol.setCellValueFactory(data ->
+            new SimpleStringProperty(data.getValue().getTeam().getName()));
+        teamCol.setPrefWidth(180);
+
+        TableColumn<StandingsEntry, Integer> playedCol = new TableColumn<>("P");
+        playedCol.setCellValueFactory(new PropertyValueFactory<>("played"));
+        playedCol.setPrefWidth(50);
+
+        TableColumn<StandingsEntry, Integer> winsCol = new TableColumn<>("W");
+        winsCol.setCellValueFactory(new PropertyValueFactory<>("wins"));
+        winsCol.setPrefWidth(50);
+
+        TableColumn<StandingsEntry, Integer> drawsCol = new TableColumn<>("D");
+        drawsCol.setCellValueFactory(new PropertyValueFactory<>("draws"));
+        drawsCol.setPrefWidth(50);
+
+        TableColumn<StandingsEntry, Integer> lossesCol = new TableColumn<>("L");
+        lossesCol.setCellValueFactory(new PropertyValueFactory<>("losses"));
+        lossesCol.setPrefWidth(50);
+
+        TableColumn<StandingsEntry, Integer> pointsCol = new TableColumn<>("Pts");
+        pointsCol.setCellValueFactory(new PropertyValueFactory<>("points"));
+        pointsCol.setPrefWidth(60);
+
+        table.getColumns().addAll(teamCol, playedCol, winsCol, drawsCol, lossesCol, pointsCol);
+        updateTable(table);
+        return table;
+    }
 
     private void simulateWeek() {
         List<Match> weekMatches = league.getFixture().getMatchesByWeek(currentWeek);
-        
-        if (weekMatches.isEmpty()) {
-            System.out.println("Season is over!");
-            return;
-        }
+        if (weekMatches == null || weekMatches.isEmpty()) return;
 
         for (Match match : weekMatches) {
             if (!match.isPlayed()) {
-                GameManager gm = new GameManager(sport, SportFactory.createEngine(sportType), league);
+                IMatchEngine engine = SportFactory.createEngine(sportType);
+                GameManager gm = new GameManager(sport, engine, league);
                 gm.playMatch(match);
-                leagueManager.processMatchResult(league, match);
+                leagueManager.processMatchResult(league, match, sportType);
             }
         }
-        currentWeek++;
     }
 
     private void updateTable(TableView<StandingsEntry> table) {
-    table.getItems().clear();
-    table.getItems().addAll(league.getStandings());
+        table.getItems().clear();
+        table.getItems().addAll(league.getStandings());
     }
 }

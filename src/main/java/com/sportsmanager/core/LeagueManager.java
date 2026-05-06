@@ -20,17 +20,27 @@ public class LeagueManager {
 
     public void generateFixture(League league) {
         List<Team> teams = league.getTeams();
+        int n = teams.size();
         int week = 1;
-        for (int i = 0; i < teams.size(); i++) {
-            for (int j = i + 1; j < teams.size(); j++) {
-                Match match = new Match(teams.get(i), teams.get(j));
+
+        for (int round = 0; round < n - 1; round++) {
+            for (int i = 0; i < n / 2; i++) {
+                Team home = teams.get(i);
+                Team away = teams.get(n - 1 - i);
+                Match match = new Match(home, away);
                 league.getFixture().addMatch(week, match);
-                week++;
             }
+            // Rotating teams,round-robin algorithm
+            Team last = teams.remove(teams.size() - 1);
+            teams.add(1, last);
+            week++;
         }
     }
 
     public List<StandingsEntry> calcStandings(League league) {
+        if (league.getStandings() != null && !league.getStandings().isEmpty()) {
+            return league.getStandings();
+        }
         List<StandingsEntry> standings = new ArrayList<>();
         for (Team team : league.getTeams()) {
             standings.add(new StandingsEntry(team));
@@ -38,24 +48,33 @@ public class LeagueManager {
         return standings;
     }
 
-    public void processMatchResult(League league, Match match) {
+    public void processMatchResult(League league, Match match, String sportType) {
         if (!match.isPlayed()) return;
 
         MatchResult result = match.getResult();
-        int homeScore = result.getTotalHomeScore();
-        int awayScore = result.getTotalAwayScore();
+        int homeGoalsFor, homeGoalsAgainst;
+
+        if (sportType.equalsIgnoreCase("volleyball")) {
+            // Set sayısını say
+            int homeSets = 0, awaySets = 0;
+            for (var period : result.getPeriods()) {
+                if (period.getHomeScore() > period.getAwayScore()) homeSets++;
+                else awaySets++;
+            }
+            homeGoalsFor = homeSets;
+            homeGoalsAgainst = awaySets;
+        } else {
+            homeGoalsFor = result.getTotalHomeScore();
+            homeGoalsAgainst = result.getTotalAwayScore();
+        }
 
         for (StandingsEntry entry : league.getStandings()) {
-            if (entry.getTeam().equals(match.getHomeTeam()) ||
-                    entry.getTeam().equals(match.getAwayTeam())) {
-
-                if (entry.getTeam().equals(match.getHomeTeam())) {
-                    entry.addResult(homeScore, awayScore);
-                } else {
-                    entry.addResult(awayScore, homeScore);
-                }
+            if (entry.getTeam().equals(match.getHomeTeam())) {
+                entry.addResult(homeGoalsFor, homeGoalsAgainst);
+            } else if (entry.getTeam().equals(match.getAwayTeam())) {
+                entry.addResult(homeGoalsAgainst, homeGoalsFor);
             }
         }
     }
-  //yusuf emir yılmaz
+  //yusuf emir yılmaz & Selim 
 }

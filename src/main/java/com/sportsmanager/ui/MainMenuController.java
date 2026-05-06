@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -17,37 +18,46 @@ public class MainMenuController {
     }
 
     public void show() {
-        Label title = new Label("Sports Manager");
-        title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold;");
+        Label title = new Label("SPORTSMANAGER");
+        title.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        Label subtitle = new Label("Select a sport to manage");
-        subtitle.setStyle("-fx-font-size: 16px;");
+        Label subtitle = new Label("by Phoenix");
+        subtitle.setStyle("-fx-font-size: 12px; -fx-text-fill: #aaaaaa; -fx-padding: 20 0 0 10;");
+
+        HBox titleBox = new HBox(title, subtitle);
+        titleBox.setAlignment(Pos.BOTTOM_LEFT);
+        titleBox.setPadding(new Insets(0, 0, 30, 0));
 
         Button footballBtn = new Button("Football");
         footballBtn.setPrefWidth(200);
-        footballBtn.setPrefHeight(50);
-        footballBtn.setStyle("-fx-font-size: 16px;");
+        footballBtn.setPrefHeight(60);
+        footballBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 18px; -fx-background-radius: 8; -fx-cursor: hand;");
         footballBtn.setOnAction(e -> startGame("football"));
 
         Button volleyballBtn = new Button("Volleyball");
         volleyballBtn.setPrefWidth(200);
-        volleyballBtn.setPrefHeight(50);
-        volleyballBtn.setStyle("-fx-font-size: 16px;");
+        volleyballBtn.setPrefHeight(60);
+        volleyballBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 18px; -fx-background-radius: 8; -fx-cursor: hand;");
         volleyballBtn.setOnAction(e -> startGame("volleyball"));
 
-        VBox layout = new VBox(20);
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(50));
-        layout.getChildren().addAll(title, subtitle, footballBtn, volleyballBtn);
+        HBox buttonBox = new HBox(20, footballBtn, volleyballBtn);
+        buttonBox.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 600, 400);
+        VBox layout = new VBox(40);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(60));
+        layout.setStyle("-fx-background-color: #1E1E2E;");
+        layout.getChildren().addAll(titleBox, buttonBox);
+
+        Scene scene = new Scene(layout, 700, 450);
         stage.setTitle("Sports Manager");
         stage.setScene(scene);
         stage.show();
     }
 
     private void startGame(String sportType) {
-        LeagueController leagueController = new LeagueController(stage, sportType);
-        leagueController.show();
-    }
+    LeagueController temp = new LeagueController(stage, sportType, null);
+    TeamSelectController teamSelect = new TeamSelectController(stage, sportType, temp.getTeams());
+    teamSelect.show();
+}
 }
