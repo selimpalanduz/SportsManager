@@ -1,4 +1,6 @@
 package com.sportsmanager.core;
+
+import com.sportsmanager.interfaces.ISport;
 import com.sportsmanager.model.common.League;
 import com.sportsmanager.model.common.Match;
 import com.sportsmanager.model.common.MatchResult;
@@ -8,29 +10,69 @@ import com.sportsmanager.model.common.Team;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class LeagueManager {
-    public League createLeague(String name, List<Team> teams) {
+
+    public League createLeague(String name, List<Team> teams, ISport sport) {
         League league = new League(name);
         for (Team team : teams) {
             league.addTeam(team);
         }
         generateFixture(league);
+
+        List<StandingsEntry> standings = new ArrayList<>();
+        for (Team t : league.getTeams()) {
+            standings.add(new StandingsEntry(t, sport));
+        }
+        league.setStandings(standings);
         return league;
     }
 
-    public void generateFixture(League league) {
-        List<Team> teams = league.getTeams();
-        int n = teams.size();
-        int week = 1;
 
-        for (int round = 0; round < n - 1; round++) {
+    public League createLeague(String name, List<Team> teams) {
+        return createLeague(name, teams, null);
+    }
+
+
+    public void generateFixture(League league) {
+        List<Team> teams = new ArrayList<>(league.getTeams());
+        int n = teams.size();
+        if (n < 2) return;
+
+
+        boolean hasBye = (n % 2 != 0);
+        if (hasBye) {
+            teams.add(null);
+            n++;
+        }
+
+        int week = 1;
+        int rounds = n - 1;
+
+
+        for (int round = 0; round < rounds; round++) {
             for (int i = 0; i < n / 2; i++) {
                 Team home = teams.get(i);
                 Team away = teams.get(n - 1 - i);
-                Match match = new Match(home, away);
-                league.getFixture().addMatch(week, match);
+                if (home != null && away != null) {
+                    league.getFixture().addMatch(week, new Match(home, away));
+                }
             }
-            // Rotating teams,round-robin algorithm
+
+            Team last = teams.remove(teams.size() - 1);
+            teams.add(1, last);
+            week++;
+        }
+
+
+        for (int round = 0; round < rounds; round++) {
+            for (int i = 0; i < n / 2; i++) {
+                Team home = teams.get(n - 1 - i); // swapped
+                Team away = teams.get(i);          // swapped
+                if (home != null && away != null) {
+                    league.getFixture().addMatch(week, new Match(home, away));
+                }
+            }
             Team last = teams.remove(teams.size() - 1);
             teams.add(1, last);
             week++;
@@ -52,29 +94,37 @@ public class LeagueManager {
         if (!match.isPlayed()) return;
 
         MatchResult result = match.getResult();
-        int homeGoalsFor, homeGoalsAgainst;
+        int homeFor, homeAgainst;
 
-        if (sportType.equalsIgnoreCase("volleyball")) {
-            // Set sayısını say
+        if ("volleyball".equalsIgnoreCase(sportType)) {
+
             int homeSets = 0, awaySets = 0;
             for (var period : result.getPeriods()) {
                 if (period.getHomeScore() > period.getAwayScore()) homeSets++;
                 else awaySets++;
             }
-            homeGoalsFor = homeSets;
-            homeGoalsAgainst = awaySets;
+            homeFor = homeSets;
+            homeAgainst = awaySets;
         } else {
-            homeGoalsFor = result.getTotalHomeScore();
-            homeGoalsAgainst = result.getTotalAwayScore();
+            homeFor = result.getTotalHomeScore();
+            homeAgainst = result.getTotalAwayScore();
         }
 
         for (StandingsEntry entry : league.getStandings()) {
             if (entry.getTeam().equals(match.getHomeTeam())) {
-                entry.addResult(homeGoalsFor, homeGoalsAgainst);
+                entry.addResult(homeFor, homeAgainst);
             } else if (entry.getTeam().equals(match.getAwayTeam())) {
-                entry.addResult(homeGoalsAgainst, homeGoalsFor);
+                entry.addResult(homeAgainst, homeFor);
             }
         }
     }
-  //yusuf emir yılmaz & Selim 
+
+
+    public int totalWeeks(League league) {
+        return league.getFixture().getAllMatches().keySet().stream()
+                .mapToInt(Integer::intValue)
+                .max()
+                .orElse(0);
+    }
+    //yusuf emir yılmaz& selim
 }
