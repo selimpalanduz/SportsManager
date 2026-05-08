@@ -10,7 +10,7 @@ public class VolleyballCoach extends Coach {
         super(name, experience);
     }
 
-    
+
     @Override
     public void trainPlayer(Player player) {
         if (player instanceof VolleyballPlayer)   {

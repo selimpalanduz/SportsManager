@@ -1,8 +1,8 @@
 package com.sportsmanager;
 
+import com.sportsmanager.ui.MainMenuController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import com.sportsmanager.ui.MainMenuController;
 
 public class Main extends Application {
 
