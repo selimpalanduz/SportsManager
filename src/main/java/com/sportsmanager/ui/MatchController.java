@@ -87,6 +87,11 @@ public class MatchController {
 
         HBox matchHeader = new HBox(24, homeLabel, vsLabel, awayLabel);
         matchHeader.setAlignment(Pos.CENTER);
+        
+        Label xpInfo = new Label(
+            "⚡ " + match.getHomeTeam().getXp() + " XP   vs   " + match.getAwayTeam().getXp() + " XP ⚡"
+        );
+        xpInfo.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: rgba(46,204,113,0.85); -fx-letter-spacing: 2px;");
 
         Label sportLabel = new Label(
                 sport.getSportName() + "   ·   " + sport.getNumberOfPeriods() + " Periods");
@@ -176,7 +181,7 @@ public class MatchController {
         layout.setPadding(new Insets(30, 40, 30, 40));
         layout.setStyle("-fx-background-color: linear-gradient(to bottom, #0a0a0f, #0d1117, #0a0f1e);");
         layout.getChildren().addAll(
-                topLine, matchHeader, sportLabel,
+                topLine, matchHeader, xpInfo, sportLabel,
                 scoreBox, tacticRow, logBox,
                 buttons, botLine);
 

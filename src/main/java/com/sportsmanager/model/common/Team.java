@@ -8,6 +8,8 @@ public abstract class Team {
     protected List<Player> roster;
     protected List<Coach> coaches;
     protected int points;
+    protected int xp = 0;
+    protected boolean trainedThisWeek = false;
 
     public Team(String name) {
         this.name = name;
@@ -69,5 +71,9 @@ public abstract class Team {
     public void addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
     }
-    //DenizKaraman461
+    public int getXp() { return xp; }
+    public void addXp(int amount) { this.xp += amount; }
+    public boolean isTrainedThisWeek() { return trainedThisWeek; }
+    public void setTrainedThisWeek(boolean trained) { this.trainedThisWeek = trained; }
+    //DenizKaraman461 & Selim Palanduz
 }

@@ -52,7 +52,10 @@ public class TeamController {
                 : "Roster & Coaching Staff";
         Label subtitle = new Label(tag);
         subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #aaaaaa;");
-
+        
+        Label xpLabel = new Label("⚡ XP: " + team.getXp());
+        xpLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;");
+       
         Label rosterLabel = new Label("Players");
         rosterLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
 
@@ -63,20 +66,38 @@ public class TeamController {
 
         TableView<Coach> coachesTable = createCoachesTable();
 
+        Button trainBtn = new Button("Train Team (+100 XP)");
+        trainBtn.setPrefWidth(200);
+        trainBtn.setPrefHeight(45);
+        trainBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;");
+        boolean canTrain = userTeam != null && team.getName().equals(userTeam.getName()) && !team.isTrainedThisWeek();
+        trainBtn.setDisable(!canTrain);
+        if (team.isTrainedThisWeek()) {
+            trainBtn.setText("Already Trained This Week");
+        } else if (!canTrain) {
+            trainBtn.setText("Cannot Train Other Teams");
+        }
+
+        trainBtn.setOnAction(e -> {
+            team.addXp(100);
+            team.setTrainedThisWeek(true);
+            trainBtn.setDisable(true);
+            trainBtn.setText("Already Trained");
+        });
         Button backBtn = new Button("Back to League");
         backBtn.setPrefWidth(180);
         backBtn.setPrefHeight(45);
         backBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;");
         backBtn.setOnAction(e -> goBack());
 
-        HBox buttons = new HBox(15, backBtn);
+        HBox buttons = new HBox(15,trainBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
         VBox layout = new VBox(15);
         layout.setAlignment(Pos.TOP_CENTER);
         layout.setPadding(new Insets(30));
         layout.setStyle("-fx-background-color: #1E1E2E;");
-        layout.getChildren().addAll(title, subtitle, rosterLabel, playersTable, coachLabel, coachesTable, buttons);
+        layout.getChildren().addAll(title, subtitle, xpLabel, rosterLabel, playersTable, coachLabel, coachesTable, buttons);
 
         Scene scene = new Scene(layout, 750, 650);
         stage.setTitle("Team - " + team.getName());

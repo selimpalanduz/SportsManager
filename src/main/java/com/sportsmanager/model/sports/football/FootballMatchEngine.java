@@ -32,7 +32,10 @@ public class FootballMatchEngine implements IMatchEngine {
     public PeriodResult simulateNextPeriod() {
         int homeSkill = getTeamAverageSkill(match.getHomeTeam().getAvailablePlayers());
         int awaySkill = getTeamAverageSkill(match.getAwayTeam().getAvailablePlayers());
-
+        // XP bonus
+        homeSkill += match.getHomeTeam().getXp() / 50;
+        awaySkill += match.getAwayTeam().getXp() / 50;
+        
         int homeScore = simulateGoals(homeSkill, awaySkill);
         int awayScore = simulateGoals(awaySkill, homeSkill);
 
@@ -64,8 +67,17 @@ public class FootballMatchEngine implements IMatchEngine {
         allPlayers.addAll(match.getHomeTeam().getAvailablePlayers());
         allPlayers.addAll(match.getAwayTeam().getAvailablePlayers());
 
-        for (Player p : allPlayers) {
-            if (random.nextInt(100) < 5) {
+        int homeInjuryRate = match.getHomeTeam().isTrainedThisWeek() ? 10 : 5;
+        int awayInjuryRate = match.getAwayTeam().isTrainedThisWeek() ? 10 : 5;
+
+        for (Player p : match.getHomeTeam().getAvailablePlayers()) {
+            if (random.nextInt(100) < homeInjuryRate) {
+                p.setInjuryDuration(random.nextInt(3) + 1);
+                injured.add(p);
+            }
+        }
+        for (Player p : match.getAwayTeam().getAvailablePlayers()) {
+            if (random.nextInt(100) < awayInjuryRate) {
                 p.setInjuryDuration(random.nextInt(3) + 1);
                 injured.add(p);
             }

@@ -117,6 +117,25 @@ public class LeagueManager {
                 entry.addResult(homeAgainst, homeFor);
             }
         }
+        // XP distribution
+        Team home = match.getHomeTeam();
+        Team away = match.getAwayTeam();
+        Team winner = result.getWinner();
+
+        if (winner == null) {
+            home.addXp(100);
+            away.addXp(100);
+        } else if (winner.equals(home)) {
+            home.addXp(80);
+            away.addXp(120);
+        } else {
+            home.addXp(120);
+            away.addXp(80);
+        }
+
+        // Reset training status
+        home.setTrainedThisWeek(false);
+        away.setTrainedThisWeek(false);
     }
 
 

@@ -41,7 +41,9 @@ public class VolleyballMatchEngine implements IMatchEngine {
     public PeriodResult simulateNextPeriod() {
         int homeSkill = getTeamAverageSkill(match.getHomeTeam().getAvailablePlayers());
         int awaySkill = getTeamAverageSkill(match.getAwayTeam().getAvailablePlayers());
-
+        // XP bonus same as football 
+        homeSkill += match.getHomeTeam().getXp() / 50;
+        awaySkill += match.getAwayTeam().getXp() / 50;
         int maxPoints = (currentSet == 4) ? 15 : 25;
 
         int homeScore = 0;
@@ -110,8 +112,17 @@ public class VolleyballMatchEngine implements IMatchEngine {
         allPlayers.addAll(match.getHomeTeam().getAvailablePlayers());
         allPlayers.addAll(match.getAwayTeam().getAvailablePlayers());
 
-        for (Player p : allPlayers) {
-            if (random.nextInt(100) < 3) {
+        int homeInjuryRate = match.getHomeTeam().isTrainedThisWeek() ? 8 : 3;
+        int awayInjuryRate = match.getAwayTeam().isTrainedThisWeek() ? 8 : 3;
+
+        for (Player p : match.getHomeTeam().getAvailablePlayers()) {
+            if (random.nextInt(100) < homeInjuryRate) {
+                p.setInjuryDuration(random.nextInt(3) + 1);
+                injured.add(p);
+            }
+        }
+        for (Player p : match.getAwayTeam().getAvailablePlayers()) {
+            if (random.nextInt(100) < awayInjuryRate) {
                 p.setInjuryDuration(random.nextInt(3) + 1);
                 injured.add(p);
             }
