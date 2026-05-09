@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<!--
+  Championship.fxml — Trophy Ceremony Screen
+  Premium dark / gold  |  JavaFX 17+
+  Controller: ChampionshipController.initData(stage, winner)
+-->
+<StackPane
+    prefHeight="720.0" prefWidth="1280.0"
+    stylesheets="@style.css"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.sportsmanager.ui.ChampionshipController">
+
+    <!-- Deep background -->
+    <VBox prefHeight="720" prefWidth="1280"
+          style="-fx-background-color: linear-gradient(to bottom,#08080e,#0c0b00 55%,#08080e);" />
+
+    <!-- Wide gold halo -->
+    <StackPane prefWidth="600" prefHeight="600" StackPane.alignment="CENTER"
+               style="-fx-background-color: radial-gradient(focus-angle 0deg,focus-distance 0%,
+                          center 50% 50%,radius 50%,rgba(241,196,15,0.09),rgba(241,196,15,0.0));" />
+
+    <!-- Narrow gold halo -->
+    <StackPane prefWidth="280" prefHeight="280" StackPane.alignment="CENTER"
+               style="-fx-background-color: radial-gradient(focus-angle 0deg,focus-distance 0%,
+                          center 50% 50%,radius 50%,rgba(241,196,15,0.14),rgba(241,196,15,0.0));" />
+
+    <!-- Top gold line -->
+    <Rectangle height="3" width="1280" StackPane.alignment="TOP_CENTER"
+               style="-fx-fill: linear-gradient(to right,
+                          transparent,rgba(241,196,15,0.0) 8%,
+                          #f1c40f 35%,#f1c40f 65%,
+                          rgba(241,196,15,0.0) 92%,transparent);" />
+
+    <!-- Bottom green line -->
+    <Rectangle height="2" width="1280" StackPane.alignment="BOTTOM_CENTER"
+               style="-fx-fill: linear-gradient(to right,
+                          transparent,rgba(46,204,113,0.0) 10%,
+                          rgba(46,204,113,0.45) 40%,rgba(46,204,113,0.45) 60%,
+                          rgba(46,204,113,0.0) 90%,transparent);" />
+
+    <!-- Content -->
+    <VBox alignment="CENTER" spacing="0">
+
+        <Region prefHeight="50" />
+
+        <Label text="SEASON COMPLETE"
+               style="-fx-font-size:10px;-fx-font-weight:bold;
+                      -fx-text-fill:rgba(255,255,255,0.35);-fx-letter-spacing:5px;" />
+
+        <Region prefHeight="10" />
+
+        <Rectangle height="1" width="220"
+                   style="-fx-fill:linear-gradient(to right,transparent,rgba(241,196,15,0.55),transparent);" />
+
+        <Region prefHeight="18" />
+
+        <Label fx:id="trophyLabel" text="🏆" styleClass="trophy-label"
+               style="-fx-font-size:96px;" />
+
+        <Region prefHeight="14" />
+
+        <Label text="LEAGUE CHAMPION" styleClass="champion-title"
+               style="-fx-letter-spacing:4px;" />
+
+        <Region prefHeight="8" />
+
+        <Label fx:id="winnerTeamLabel" text="CHAMPION" styleClass="champion-name" />
+
+        <Region prefHeight="28" />
+
+        <!-- Stats card -->
+        <VBox alignment="CENTER" spacing="10" styleClass="stats-card"
+              style="-fx-padding:20 60;">
+            <Label fx:id="statsLabel"
+                   text="38 Points  ·  12 Wins  ·  2 Draws"
+                   styleClass="stats-label" />
+            <Separator prefWidth="280"
+                       style="-fx-background-color:rgba(255,255,255,0.07);
+                              -fx-border-color:rgba(255,255,255,0.07);" />
+            <Label text="✦   THE TROPHY IS YOURS   ✦"
+                   styleClass="success-label" style="-fx-letter-spacing:2px;" />
+        </VBox>
+
+        <Region prefHeight="36" />
+
+        <HBox alignment="CENTER">
+            <!-- finish-button class from style.css — premium blue glass theme -->
+            <Button onAction="#handleReturnToMenu"
+                    prefHeight="54.0" prefWidth="290.0"
+                    styleClass="finish-button"
+                    text="✓   RETURN TO MAIN MENU" />
+        </HBox>
+
+        <Region prefHeight="32" />
+    </VBox>
+
+</StackPane>

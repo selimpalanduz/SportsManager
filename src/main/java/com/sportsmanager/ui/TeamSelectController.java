@@ -4,72 +4,134 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import com.sportsmanager.model.common.Team;
-
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import java.util.Objects;
 import java.util.List;
+
+import static com.sportsmanager.Main.SCENE_WIDTH;
+import static com.sportsmanager.Main.SCENE_HEIGHT;
 
 public class TeamSelectController {
 
-    private Stage stage;
-    private String sportType;
-    private List<Team> teams;
+    private final Stage stage;
+    private final String sportType;
+    private final List<Team> teams;
 
     public TeamSelectController(Stage stage, String sportType, List<Team> teams) {
-        this.stage = stage;
+        this.stage     = stage;
         this.sportType = sportType;
-        this.teams = teams;
+        this.teams     = teams;
+    }
+
+    private String cssUrl() {
+        return Objects.requireNonNull(
+                getClass().getResource("/style.css")).toExternalForm();
     }
 
     public void show() {
-        Label title = new Label("Select Your Team");
-        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        Label subtitle = new Label("Choose a team to manage this season");
-        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #aaaaaa;");
+        // ── Top neon line ────────────────────────────────────────
+        Rectangle topLine = new Rectangle(SCENE_WIDTH - 60, 2);
+        topLine.setStyle(
+                "-fx-fill: linear-gradient(to right," +
+                        " transparent, rgba(46,204,113,0.55), transparent);");
 
-        VBox teamList = new VBox(10);
+        // ── Title block ───────────────────────────────────────────
+        Label badge = new Label(sportType.toUpperCase() + "  ·  CAREER MODE");
+        badge.setStyle(
+                "-fx-font-size: 10px; -fx-font-weight: bold;" +
+                        "-fx-text-fill: rgba(46,204,113,0.85);" +
+                        "-fx-letter-spacing: 4px;");
+
+        Label title = new Label("SELECT YOUR TEAM");
+        title.getStyleClass().add("title-label");
+        title.setStyle("-fx-font-size: 36px; -fx-font-weight: bold;" +
+                "-fx-text-fill: white;" +
+                "-fx-effect: dropshadow(gaussian,rgba(255,255,255,0.18),14,0.12,0,0);");
+
+        Label subtitle = new Label("Choose the club you want to manage this season");
+        subtitle.getStyleClass().add("accent-dim");
+        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.55);");
+
+        VBox titleBlock = new VBox(8, badge, title, subtitle);
+        titleBlock.setAlignment(Pos.CENTER);
+
+        // ── Team button list ──────────────────────────────────────
+        // No glass-panel wrapper — buttons float directly over the stadium BG.
+        // Each individual team-button already has its own dark glass style from CSS.
+        VBox teamList = new VBox(12);
         teamList.setAlignment(Pos.CENTER);
+        teamList.setMaxWidth(420);
+        teamList.setStyle("-fx-background-color: transparent;"); // explicitly transparent
 
         for (Team team : teams) {
-            Button teamBtn = new Button(team.getName());
-            teamBtn.setPrefWidth(300);
-            teamBtn.setPrefHeight(50);
-            teamBtn.setStyle("-fx-background-color: #2D2D3E; -fx-text-fill: white; -fx-font-size: 16px; -fx-background-radius: 8; -fx-cursor: hand;");
-            teamBtn.setOnMouseEntered(e ->
-                teamBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 16px; -fx-background-radius: 8; -fx-cursor: hand;")
-            );
-            teamBtn.setOnMouseExited(e ->
-                teamBtn.setStyle("-fx-background-color: #2D2D3E; -fx-text-fill: white; -fx-font-size: 16px; -fx-background-radius: 8; -fx-cursor: hand;")
-            );
-            teamBtn.setOnAction(e -> {
-                LeagueController leagueController = new LeagueController(stage, sportType, team);
-                leagueController.show();
-            });
-            teamList.getChildren().add(teamBtn);
+            Button btn = createTeamButton(team);
+            teamList.getChildren().add(btn);
         }
 
-        Button backBtn = new Button("Back");
-        backBtn.setPrefWidth(100);
-        backBtn.setPrefHeight(40);
-        backBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
+        // ── Back button ───────────────────────────────────────────
+        Button backBtn = new Button("← BACK");
+        backBtn.setPrefWidth(150);
+        backBtn.setPrefHeight(46);
+        backBtn.getStyleClass().add("back-button");
         backBtn.setOnAction(e -> {
-            MainMenuController menu = new MainMenuController(stage);
-            menu.show();
+            try {
+                Parent root = FXMLLoader.load(
+                        Objects.requireNonNull(
+                                getClass().getResource("/MainMenu.fxml")));
+                Scene menuScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+                menuScene.getStylesheets().add(cssUrl());
+                stage.setTitle("Sports Manager - Ultimate Edition");
+                stage.setScene(menuScene);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
-        VBox layout = new VBox(25);
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(40));
-        layout.setStyle("-fx-background-color: #1E1E2E;");
-        layout.getChildren().addAll(title, subtitle, teamList, backBtn);
+        // ── Bottom neon line ──────────────────────────────────────
+        Rectangle botLine = new Rectangle(SCENE_WIDTH - 60, 2);
+        botLine.setStyle(
+                "-fx-fill: linear-gradient(to right," +
+                        " transparent, rgba(241,196,15,0.45), transparent);");
 
-        ScrollPane scrollPane = new ScrollPane(layout);
+        // ── Inner content — fully transparent, stadium shows through ─
+        VBox content = new VBox(28, topLine, titleBlock, teamList, backBtn, botLine);
+        content.setAlignment(Pos.TOP_CENTER);
+        content.setPadding(new Insets(40, 40, 40, 40));
+        content.setStyle("-fx-background-color: transparent;");
+
+        // ── ScrollPane ────────────────────────────────────────────
+        ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: #1E1E2E;");
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.getStyleClass().add("scroll-pane");
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
 
-        Scene scene = new Scene(scrollPane, 700, 600);
+        // ── ROOT — stadium background covers entire window ────────
+        StackPane root = new StackPane(scrollPane);
+        root.getStyleClass().add("main-background");
+
+        Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+        scene.getStylesheets().add(cssUrl());
+
+        stage.setTitle("Sports Manager - Ultimate Edition  ·  Select Team");
         stage.setScene(scene);
         stage.show();
+    }
+
+    private Button createTeamButton(Team team) {
+        Button btn = new Button(team.getName().toUpperCase());
+        btn.setPrefWidth(380);
+        btn.setPrefHeight(54);
+        btn.getStyleClass().add("team-button");
+        btn.setOnAction(e -> {
+            LeagueController lc = new LeagueController(stage, sportType, team);
+            lc.show();
+        });
+        return btn;
     }
 }

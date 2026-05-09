@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<!--
+  MainMenu.fxml — Sports Manager Pro v3
+  Stadyum arka planı (.main-background CSS sınıfı üzerinden)
+  JavaFX 17+  |  Controller: MainMenuController (değişmez)
+
+  ÖNEMLİ: fifa-19-stadium-4k-of.jpg dosyasının
+  src/main/resources/ klasöründe olması gerekir.
+-->
+<StackPane
+    prefHeight="600.0" prefWidth="800.0"
+    styleClass="main-background"
+    stylesheets="@style.css"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.sportsmanager.ui.MainMenuController">
+
+    <!--
+      .main-background bu StackPane'in tamamına uygulanır:
+        → Stadyum görseli (cover)
+        → Üstüne lacivert/siyah karartma gradient
+      Ek VBox/ImageView gerekmez.
+    -->
+
+    <!-- Üst yeşil neon çizgi -->
+    <Rectangle
+        height="2" width="800"
+        StackPane.alignment="TOP_CENTER"
+        style="-fx-fill: linear-gradient(to right,
+                  transparent,
+                  rgba(46,204,113,0.0) 10%,
+                  rgba(46,204,113,0.55) 38%,
+                  rgba(46,204,113,0.55) 62%,
+                  rgba(46,204,113,0.0) 90%,
+                  transparent);" />
+
+    <!-- İçerik -->
+    <VBox alignment="CENTER" spacing="0" StackPane.alignment="CENTER">
+
+        <Region prefHeight="80" />
+
+        <!-- ── Logo bölümü ──────────────────────────────────── -->
+        <Label
+            text="⚽  EA-STYLE MANAGER"
+            styleClass="vs-label"
+            style="-fx-letter-spacing: 5px;" />
+
+        <Region prefHeight="14" />
+
+        <Label
+            text="SPORTS MANAGER"
+            styleClass="game-title"
+            style="-fx-letter-spacing: 4px;" />
+
+        <Label
+            text="PRO  EDITION"
+            style="-fx-font-size: 12px;
+                   -fx-font-weight: bold;
+                   -fx-text-fill: rgba(255,255,255,0.28);
+                   -fx-letter-spacing: 9px;" />
+
+        <Region prefHeight="58" />
+
+        <!-- ── Glassmorphism Menü Kartı ──────────────────────── -->
+        <VBox
+            alignment="CENTER" spacing="14"
+            style="-fx-background-color: rgba(255,255,255,0.04);
+                   -fx-border-color: rgba(255,255,255,0.09);
+                   -fx-border-width: 1px;
+                   -fx-border-radius: 20px;
+                   -fx-background-radius: 20px;
+                   -fx-padding: 32 50 32 50;
+                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.60), 28, 0.0, 0, 6);">
+
+            <!-- Küçük kart başlığı -->
+            <Label
+                text="SELECT MODE"
+                style="-fx-font-size: 9px;
+                       -fx-font-weight: bold;
+                       -fx-text-fill: rgba(255,255,255,0.22);
+                       -fx-letter-spacing: 5px;" />
+
+            <Region prefHeight="4" />
+
+            <!-- Football butonu -->
+            <Button
+                onAction="#handleFootballCareer"
+                prefHeight="56.0" prefWidth="340.0"
+                styleClass="menu-button"
+                text="⚽   FOOTBALL  ·  CAREER MODE" />
+
+            <!-- Volleyball butonu -->
+            <Button
+                onAction="#handleVolleyballCareer"
+                prefHeight="56.0" prefWidth="340.0"
+                styleClass="menu-button"
+                text="🏐   VOLEYBOL  ·  CAREER MODE" />
+
+        </VBox>
+
+        <Region prefHeight="50" />
+
+        <!-- Alt footer -->
+        <HBox alignment="CENTER">
+            <Label
+                text="POWERED BY PHOENIX ENGINE"
+                style="-fx-font-size: 9px;
+                       -fx-font-weight: bold;
+                       -fx-text-fill: rgba(255,255,255,0.15);
+                       -fx-letter-spacing: 3px;" />
+        </HBox>
+
+        <Region prefHeight="22" />
+
+    </VBox>
+
+    <!-- Alt altın çizgi -->
+    <Rectangle
+        height="2" width="800"
+        StackPane.alignment="BOTTOM_CENTER"
+        style="-fx-fill: linear-gradient(to right,
+                  transparent,
+                  rgba(241,196,15,0.0) 10%,
+                  rgba(241,196,15,0.45) 38%,
+                  rgba(241,196,15,0.45) 62%,
+                  rgba(241,196,15,0.0) 90%,
+                  transparent);" />
+
+</StackPane>
