@@ -67,10 +67,30 @@ public class VolleyballMatchEngine implements IMatchEngine {
         currentSet++;
 
         if (isMatchOver()) {
+            int homePoints;
+            int awayPoints;
+            
+            if (homeSetsWon == 3 && awaySetsWon == 0) {
+                homePoints = 3; awayPoints = 0;
+            } else if (homeSetsWon == 3 && awaySetsWon == 1) {
+                homePoints = 3; awayPoints = 0;
+            } else if (homeSetsWon == 3 && awaySetsWon == 2) {
+                homePoints = 2; awayPoints = 1;
+            } else if (awaySetsWon == 3 && homeSetsWon == 2) {
+                homePoints = 1; awayPoints = 2;
+            } else if (awaySetsWon == 3 && homeSetsWon == 1) {
+                homePoints = 0; awayPoints = 3;
+            } else {
+                homePoints = 0; awayPoints = 3;
+            }
+
+            match.getHomeTeam().addPoints(homePoints);
+            match.getAwayTeam().addPoints(awayPoints);
+
             MatchResult matchResult = new MatchResult(
-                    match.getHomeTeam(),
-                    match.getAwayTeam(),
-                    setResults
+                match.getHomeTeam(),
+                match.getAwayTeam(),
+                setResults
             );
             match.setResult(matchResult);
         }

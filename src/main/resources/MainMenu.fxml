@@ -103,6 +103,11 @@
                 prefHeight="56.0" prefWidth="340.0"
                 styleClass="menu-button"
                 text="🏐   VOLEYBOL  ·  CAREER MODE" />
+            <Button
+                onAction="#handleInstructions"
+                prefHeight="56.0" prefWidth="340.0"
+                styleClass="back-button"
+                text=" INSTRUCTIONS" />    
 
         </VBox>
 

@@ -145,6 +145,7 @@ public class LeagueController {
                 ex.printStackTrace();
             }
         });
+        
 
         HBox buttons = new HBox(16, simulateBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);

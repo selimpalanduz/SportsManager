@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,11 +68,9 @@ public class MatchController {
     }
 
     public void show() {
-        // ── Üst neon çizgi ──────────────────────────────────────
         Rectangle topLine = new Rectangle(SCENE_WIDTH - 60, 2);
         topLine.setStyle("-fx-fill: linear-gradient(to right, transparent, #2ecc71, transparent);");
 
-        // ── Takım isimleri başlığı ───────────────────────────────
         String homeN = match.getHomeTeam().getName();
         String awayN = match.getAwayTeam().getName();
 
@@ -89,20 +88,16 @@ public class MatchController {
         HBox matchHeader = new HBox(24, homeLabel, vsLabel, awayLabel);
         matchHeader.setAlignment(Pos.CENTER);
 
-        // ── Spor / periyot bilgisi ───────────────────────────────
         Label sportLabel = new Label(
                 sport.getSportName() + "   ·   " + sport.getNumberOfPeriods() + " Periods");
         sportLabel.getStyleClass().add("sport-info-label");
 
-        // ── Skor ─────────────────────────────────────────────────
         scoreLabel = new Label("0  —  0");
         scoreLabel.getStyleClass().add("score-label");
 
-        // ── Periyot durumu ───────────────────────────────────────
         periodLabel = new Label("PRE-MATCH");
         periodLabel.getStyleClass().add("period-label");
 
-        // ── Skor + periyot kutusu ────────────────────────────────
         VBox scoreBox = new VBox(6, scoreLabel, periodLabel);
         scoreBox.setAlignment(Pos.CENTER);
         scoreBox.setStyle(
@@ -114,7 +109,6 @@ public class MatchController {
                         "-fx-padding: 20 50;" +
                         "-fx-effect: dropshadow(gaussian,rgba(46,204,113,0.15),16,0,0,0);");
 
-        // ── Taktik seçici ────────────────────────────────────────
         String userSide = (userTeam != null && match.getAwayTeam().equals(userTeam))
                 ? "AWAY" : "HOME";
         String userName = (userTeam != null) ? userTeam.getName().toUpperCase() : "YOU";
@@ -132,7 +126,6 @@ public class MatchController {
         HBox tacticRow = new HBox(14, tacticHeader, tacticBox);
         tacticRow.setAlignment(Pos.CENTER);
 
-        // ── Canlı maç logu ───────────────────────────────────────
         Label logHeader = new Label("MATCH COMMENTARY");
         logHeader.setStyle(
                 "-fx-font-size:10px; -fx-font-weight:bold;" +
@@ -153,29 +146,31 @@ public class MatchController {
                         "-fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;" +
                         "-fx-padding:16;");
 
-        // ── Aksiyon butonu ───────────────────────────────────────
         actionBtn = new Button("⚽  KICK OFF");
-        actionBtn.setPrefWidth(240);
+        actionBtn.setPrefWidth(220);
         actionBtn.setPrefHeight(52);
         actionBtn.getStyleClass().add("start-button");
         actionBtn.setOnAction(e -> onActionClicked());
 
-        // ── Forfeit butonu ───────────────────────────────────────
+        Button skipBtn = new Button("⏩  SKIP MATCH");
+        skipBtn.setPrefWidth(180);
+        skipBtn.setPrefHeight(52);
+        skipBtn.getStyleClass().add("back-button");
+        skipBtn.setOnAction(e -> skipMatch());
+
         Button backBtn = new Button("✕  FORFEIT");
         backBtn.setPrefWidth(150);
         backBtn.setPrefHeight(52);
         backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(e -> goBackToLeague());
+        backBtn.setOnAction(e -> forfeitMatch());
 
-        HBox buttons = new HBox(16, actionBtn, backBtn);
+        HBox buttons = new HBox(16, actionBtn, skipBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
-        // ── Alt neon çizgi ───────────────────────────────────────
         Rectangle botLine = new Rectangle(SCENE_WIDTH - 60, 2);
         botLine.setStyle("-fx-fill: linear-gradient(to right, transparent," +
                 "rgba(241,196,15,0.55), transparent);");
 
-        // ── Ana layout ───────────────────────────────────────────
         VBox layout = new VBox(18);
         layout.setAlignment(Pos.TOP_CENTER);
         layout.setPadding(new Insets(30, 40, 30, 40));
@@ -192,7 +187,6 @@ public class MatchController {
         stage.show();
     }
 
-    // ── Aksiyon butonu tıklaması ─────────────────────────────────
     private void onActionClicked() {
         if (!started) {
             startMatch();
@@ -243,6 +237,56 @@ public class MatchController {
             actionBtn.setText("▶  PLAY PERIOD " + next);
             appendLog("You can change your tactic before the next period.");
         }
+    }
+
+    private void skipMatch() {
+        if (match.isPlayed()) {
+            goBackToLeague();
+            return;
+        }
+
+        if (engine == null) {
+            engine = SportFactory.createEngine(sportType);
+            engine.setupMatch(match);
+            started = true;
+        }
+
+        while (!engine.isMatchOver()) {
+            PeriodResult result = engine.simulateNextPeriod();
+            periodsPlayed++;
+            homeTotal += result.getHomeScore();
+            awayTotal += result.getAwayScore();
+            appendLog("Period " + periodsPlayed + ": " + result.getHomeScore() + " – " + result.getAwayScore());
+        }
+
+        scoreLabel.setText(homeTotal + "  —  " + awayTotal);
+        finishMatch();
+        
+    }
+
+    private void forfeitMatch() {
+        if (match.isPlayed()) {
+            goBackToLeague();
+            return;
+        }
+        
+        boolean userIsHome = userTeam != null && match.getHomeTeam().equals(userTeam);
+
+        List<PeriodResult> periods = new ArrayList<>();
+        if (sportType.equalsIgnoreCase("volleyball")) {
+            periods.add(new PeriodResult(userIsHome ? 0 : 25, userIsHome ? 25 : 0));
+            periods.add(new PeriodResult(userIsHome ? 0 : 25, userIsHome ? 25 : 0));
+            periods.add(new PeriodResult(userIsHome ? 0 : 25, userIsHome ? 25 : 0));
+        } else {
+            periods.add(new PeriodResult(userIsHome ? 0 : 3, userIsHome ? 3 : 0));
+            periods.add(new PeriodResult(0, 0));
+        }
+
+        MatchResult result = new MatchResult(match.getHomeTeam(), match.getAwayTeam(), periods);
+        match.setResult(result);
+        leagueManager.processMatchResult(league, match, sportType);
+
+        goBackToLeague();
     }
 
     private void finishMatch() {
