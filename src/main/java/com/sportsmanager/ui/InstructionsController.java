@@ -50,27 +50,38 @@ public class InstructionsController {
         instructionsText.setEditable(false);
         instructionsText.setWrapText(true);
         instructionsText.setPrefHeight(420);
+
+        // TextArea'yı tamamen şeffaf yapıyoruz ki arkasına koyacağımız siyah cam gözüksün
         instructionsText.setStyle(
-                "-fx-control-inner-background: rgba(8,10,18,0.88);" +
+                "-fx-control-inner-background: transparent;" +
+                        "-fx-background-color: transparent;" +
                         "-fx-text-fill: white;" +
                         "-fx-font-family: 'Segoe UI', sans-serif;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-padding: 16;");
+                        "-fx-font-size: 15px;" +
+                        "-fx-focus-color: transparent;" +
+                        "-fx-faint-focus-color: transparent;" +
+                        "-fx-border-color: transparent;");
 
         instructionsText.setText(
-                "Welcome to Sports Manager!\n\n" +
-                "1. Select your sport (Football or Volleyball) from the main menu.\n\n" +
-                "2. Choose a team to manage for the season.\n\n" +
-                "3. On the league screen, you can see the standings and simulate weeks.\n\n" +
-                "4. When your team plays, you can:\n" +
-                "   - Watch the match period by period (KICK OFF)\n" +
-                "   - Skip directly to the result (SKIP MATCH)\n" +
-                "   - Forfeit the match (FORFEIT - results in a 0-3 loss)\n\n" +
-                "5. Change your tactic between periods to influence the match outcome.\n\n" +
-                "6. After all weeks are completed, the team with the most points wins the league.\n\n" +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-                "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                "WELCOME TO SPORTS MANAGER - ULTIMATE EDITION\n\n" +
+                        "Step into the dugout and lead your team to glory. Here is your managerial guide for the season:\n\n" +
+                        "1. START YOUR CAREER: Enter your Manager Name and choose your discipline (Football or Volleyball).\n\n" +
+                        "2. CHOOSE YOUR CLUB: Select the team you want to manage. Your name will be registered as the Head Coach.\n\n" +
+                        "3. SQUAD MANAGEMENT: Before every match, analyze your 18-player roster. Pick your Starting XI and organize your 7 substitutes strategically based on their skills and positions.\n\n" +
+                        "4. MATCHDAY EXPERIENCE: When it is time to play, you have full control:\n" +
+                        "   • KICK OFF: Watch the match unfold period by period.\n" +
+                        "   • TACTICS: Change your playstyle mid-game to outsmart the opponent.\n" +
+                        "   • QUICK SIM: Skip directly to the final whistle.\n" +
+                        "   • FORFEIT: Concede the match (automatically results in a 0-3 loss).\n\n" +
+                        "5. LEAGUE DASHBOARD: Monitor the standings, track your points and goal differences, and simulate rival matches week by week.\n\n" +
+                        "6. THE ULTIMATE GOAL: Maintain your form, gather the most points over the 14-week season, and lift the Championship Trophy.\n\n" +
+                        "Good luck, Manager. The stadium awaits."
         );
+
+        // İŞTE SİHİRLİ DOKUNUŞ: Yazı alanını siyah, tok bir cam panel içine alıyoruz
+        StackPane textContainer = new StackPane(instructionsText);
+        textContainer.getStyleClass().add("glass-panel");
+        textContainer.setMaxWidth(1000); // Yanlardan biraz pay bırakıp daha şık durmasını sağlar
 
         Button backBtn = new Button("← BACK");
         backBtn.setPrefWidth(150);
@@ -85,9 +96,10 @@ public class InstructionsController {
                 "-fx-fill: linear-gradient(to right," +
                         " transparent, rgba(241,196,15,0.38), transparent);");
 
-        VBox content = new VBox(20, topLine, header, instructionsText, backBtn, botLine);
+        // "instructionsText" yerine "textContainer" (siyah kutuyu) ekliyoruz
+        VBox content = new VBox(20, topLine, header, textContainer, backBtn, botLine);
         content.setAlignment(Pos.TOP_CENTER);
-        content.setPadding(new Insets(40, 60, 40, 60));
+        content.setPadding(new Insets(30, 60, 30, 60));
         content.setStyle("-fx-background-color: transparent;");
 
         StackPane root = new StackPane(content);
