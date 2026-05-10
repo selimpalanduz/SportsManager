@@ -2,63 +2,49 @@ package com.sportsmanager.util;
 
 import java.util.Random;
 
-public final class NameGenerator {
+public class NameGenerator {
 
-    private static final String[] MALE_FIRST = {
-            "Ahmet", "Mehmet", "Ali", "Veli", "Hasan", "Huseyin", "Mustafa",
-            "Ibrahim", "Yusuf", "Emre", "Burak", "Arda", "Cenk", "Hakan",
-            "Kerem", "Salih", "Okan", "Caner", "Selim", "Deniz", "Mert",
-            "Eren", "Baris", "Tolga", "Sinan", "Furkan", "Berkay", "Ozan",
-            "Umut", "Berke", "Anil", "Cengiz", "Doruk", "Ege", "Goktug",
-            "Kaan", "Onur", "Sarp", "Tarik", "Yigit"
+    private static final String[] FIRST_NAMES = {
+            "Ahmet", "Mehmet", "Ali", "Veli", "Hasan", "Hüseyin", "Mustafa",
+            "İbrahim", "Yusuf", "Emre", "Burak", "Arda", "Can", "Cem", "Eren",
+            "Furkan", "Kerem", "Murat", "Onur", "Oğuz", "Ozan", "Selim", "Serkan",
+            "Tolga", "Umut", "Volkan", "Yiğit", "Berkay", "Caner", "Deniz",
+            "Doğan", "Ekrem", "Erdal", "Gökhan", "Halil", "Hakan", "İlhan",
+            "Kaan", "Levent", "Mert", "Okan", "Recep", "Salih", "Tayfun",
+            "Tuncay", "Uğur", "Cihan", "Hamza", "Barış", "Sefa"
     };
 
-    private static final String[] FEMALE_FIRST = {
-            "Ayse", "Fatma", "Zeynep", "Elif", "Merve", "Selin", "Ece",
-            "Ipek", "Asli", "Ceren", "Defne", "Gizem", "Hande", "Nazli",
-            "Pelin", "Sevgi", "Tugce", "Yasemin", "Zehra", "Bahar",
-            "Esra", "Gamze", "Inci", "Lale", "Melike", "Nehir", "Petek",
-            "Sila", "Tuana", "Ayla"
+    private static final String[] LAST_NAMES = {
+            "Yılmaz", "Kaya", "Demir", "Şahin", "Çelik", "Yıldız", "Yıldırım",
+            "Öztürk", "Aydın", "Özdemir", "Arslan", "Doğan", "Kılıç", "Aslan",
+            "Çetin", "Kara", "Koç", "Kurt", "Özkan", "Şimşek", "Polat",
+            "Erdoğan", "Korkmaz", "Çakır", "Acar", "Bulut", "Karaca",
+            "Şen", "Avcı", "Ergin", "Tunç", "Güneş", "Bal", "Aksoy",
+            "Türk", "Yavuz", "Alkan", "Erol", "Aktaş", "Bilgin",
+            "Tan", "Sezer", "Gül", "Uslu", "Demirel"
     };
 
-    private static final String[] LAST = {
-            "Yilmaz", "Kaya", "Demir", "Sahin", "Celik", "Yildiz", "Aydin",
-            "Ozturk", "Arslan", "Dogan", "Kilic", "Aslan", "Cetin", "Kara",
-            "Koc", "Kurt", "Polat", "Akin", "Cakir", "Erdogan", "Ucar",
-            "Kaplan", "Bulut", "Tas", "Toprak", "Acar", "Avci", "Bayram",
-            "Coskun", "Eren", "Guler", "Korkmaz", "Sari", "Tekin", "Ulus",
-            "Yavuz", "Aksoy", "Bilgin", "Candan", "Demirel"
-    };
-
-    private final Random rng;
+    private final Random random;
 
     public NameGenerator() {
-        this(new Random());
+        this.random = new Random();
     }
 
     public NameGenerator(long seed) {
-        this(new Random(seed));
+        this.random = new Random(seed);
     }
 
-    public NameGenerator(Random random) {
-        this.rng = random;
+    public String generate() {
+        String first = FIRST_NAMES[random.nextInt(FIRST_NAMES.length)];
+        String last  = LAST_NAMES[random.nextInt(LAST_NAMES.length)];
+        return first + " " + last;
     }
 
-    public String maleName() {
-        return MALE_FIRST[rng.nextInt(MALE_FIRST.length)]
-                + " " + LAST[rng.nextInt(LAST.length)];
+    public String generateFirst() {
+        return FIRST_NAMES[random.nextInt(FIRST_NAMES.length)];
     }
 
-    public String femaleName() {
-        return FEMALE_FIRST[rng.nextInt(FEMALE_FIRST.length)]
-                + " " + LAST[rng.nextInt(LAST.length)];
-    }
-
-    public String anyName() {
-        return rng.nextBoolean() ? maleName() : femaleName();
-    }
-
-    public String coachName() {
-        return "Coach " + maleName();
+    public String generateCoachName() {
+        return generate();
     }
 }

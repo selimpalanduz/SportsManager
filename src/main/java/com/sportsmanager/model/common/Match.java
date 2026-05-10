@@ -66,5 +66,4 @@ public class Match implements Serializable {
     public void setPlayed(boolean played) {
         isPlayed = played;
     }
-    //DenizKaraman461
 }

@@ -25,5 +25,4 @@ public class League implements Serializable {
     public List<StandingsEntry> getStandings() { return standings; }
     public void addTeam(Team team) { teams.add(team); }
     public void setStandings(List<StandingsEntry> standings) { this.standings = standings; }
-    //DenizKaraman461
 }

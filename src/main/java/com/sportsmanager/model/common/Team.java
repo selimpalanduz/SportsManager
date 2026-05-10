@@ -74,9 +74,9 @@ public abstract class Team implements Serializable {
     public void addPoints(int pointsToAdd) {
         this.points += pointsToAdd;
     }
+
     public int getXp() { return xp; }
     public void addXp(int amount) { this.xp += amount; }
     public boolean isTrainedThisWeek() { return trainedThisWeek; }
     public void setTrainedThisWeek(boolean trained) { this.trainedThisWeek = trained; }
-    //DenizKaraman461 & Selim Palanduz & yusufemiryılmaz
 }

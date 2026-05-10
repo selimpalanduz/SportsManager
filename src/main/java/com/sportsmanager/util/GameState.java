@@ -1,27 +1,26 @@
-package com.sportsmanager.model.common;
+package com.sportsmanager.util;
 
 import com.sportsmanager.model.common.League;
-import com.sportsmanager.model.common.Team;
 
 import java.io.Serializable;
 
 public class GameState implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String sportType;
     private final League league;
-    private final Team userTeam;
+    private final String sportType;
+    private final String userTeamName;
     private final int currentWeek;
 
-    public GameState(String sportType, League league, Team userTeam, int currentWeek) {
-        this.sportType = sportType;
+    public GameState(League league, String sportType, String userTeamName, int currentWeek) {
         this.league = league;
-        this.userTeam = userTeam;
+        this.sportType = sportType;
+        this.userTeamName = userTeamName;
         this.currentWeek = currentWeek;
     }
 
-    public String getSportType() { return sportType; }
     public League getLeague() { return league; }
-    public Team getUserTeam() { return userTeam; }
+    public String getSportType() { return sportType; }
+    public String getUserTeamName() { return userTeamName; }
     public int getCurrentWeek() { return currentWeek; }
 }

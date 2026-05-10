@@ -32,6 +32,10 @@ public class LeagueManager implements Serializable {
         return league;
     }
 
+    public League createLeague(String name, List<Team> teams) {
+        return createLeague(name, teams, null);
+    }
+
     public void generateFixture(League league) {
         List<Team> teams = new ArrayList<>(league.getTeams());
         int n = teams.size();
@@ -73,6 +77,17 @@ public class LeagueManager implements Serializable {
         }
     }
 
+    public List<StandingsEntry> calcStandings(League league) {
+        if (league.getStandings() != null && !league.getStandings().isEmpty()) {
+            return league.getStandings();
+        }
+        List<StandingsEntry> standings = new ArrayList<>();
+        for (Team team : league.getTeams()) {
+            standings.add(new StandingsEntry(team));
+        }
+        return standings;
+    }
+
     public void processMatchResult(League league, Match match, String sportType) {
         if (!match.isPlayed()) return;
 
@@ -110,11 +125,11 @@ public class LeagueManager implements Serializable {
             home.addXp(100);
             away.addXp(100);
         } else if (winner.equals(home)) {
-            home.addXp(120);
-            away.addXp(80);
-        } else {
             home.addXp(80);
             away.addXp(120);
+        } else {
+            home.addXp(120);
+            away.addXp(80);
         }
 
         home.setTrainedThisWeek(false);
@@ -124,50 +139,13 @@ public class LeagueManager implements Serializable {
     public void sortStandings(League league) {
         List<StandingsEntry> standings = league.getStandings();
         if (standings == null) return;
-
-        standings.sort((e1, e2) -> {
-            if (e1.getPoints() != e2.getPoints()) {
-                return Integer.compare(e2.getPoints(), e1.getPoints());
-            }
-
-            int h2h = getHeadToHead(league, e1.getTeam(), e2.getTeam());
-            if (h2h != 0) return h2h;
-
-            if (e1.getGoalDifference() != e2.getGoalDifference()) {
-                return Integer.compare(e2.getGoalDifference(), e1.getGoalDifference());
-            }
-
-            if (e1.getGoalsFor() != e2.getGoalsFor()) {
-                return Integer.compare(e2.getGoalsFor(), e1.getGoalsFor());
-            }
-
-            return Integer.compare(e1.getTeam().getName().compareTo(e2.getTeam().getName()), 0);
-        });
-    }
-
-    private int getHeadToHead(League league, Team t1, Team t2) {
-        int t1Pts = 0;
-        int t2Pts = 0;
-
-        for (List<Match> matches : league.getFixture().getAllMatches().values()) {
-            for (Match m : matches) {
-                if (!m.isPlayed()) continue;
-                if ((m.getHomeTeam().equals(t1) && m.getAwayTeam().equals(t2)) ||
-                        (m.getHomeTeam().equals(t2) && m.getAwayTeam().equals(t1))) {
-
-                    Team winner = m.getResult().getWinner();
-                    if (winner == null) {
-                        t1Pts += 1;
-                        t2Pts += 1;
-                    } else if (winner.equals(t1)) {
-                        t1Pts += 3;
-                    } else if (winner.equals(t2)) {
-                        t2Pts += 3;
-                    }
-                }
-            }
-        }
-        return Integer.compare(t2Pts, t1Pts);
+        standings.sort(
+                Comparator
+                        .comparingInt(StandingsEntry::getPoints).reversed()
+                        .thenComparing(Comparator.comparingInt(StandingsEntry::getGoalDifference).reversed())
+                        .thenComparing(Comparator.comparingInt(StandingsEntry::getGoalsFor).reversed())
+                        .thenComparing(e -> e.getTeam().getName())
+        );
     }
 
     public void runWeeklyTraining(League league) {
