@@ -13,11 +13,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.sportsmanager.Main.SCENE_HEIGHT;
+import static com.sportsmanager.Main.SCENE_WIDTH;
 
 public class LineupController {
 
@@ -48,251 +54,182 @@ public class LineupController {
     }
 
     public void show() {
-
         int n = sport.getSquadSize();
 
-        Label title = new Label("Pick Your Starting " + n);
+        Rectangle topLine = new Rectangle(SCENE_WIDTH - 100, 2);
+        topLine.setStyle("-fx-fill: linear-gradient(to right, transparent, #2ecc71, transparent);");
 
-        title.setStyle(
-                "-fx-font-size: 24px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-text-fill: white;"
-        );
+        Label title = new Label("PICK YOUR STARTING " + n);
+        title.getStyleClass().add("title-label");
 
-        Label subtitle = new Label(
-                userTeam.getName()
-                        + " vs "
-                        + (
-                        userTeam.equals(match.getHomeTeam())
-                                ? match.getAwayTeam().getName()
-                                : match.getHomeTeam().getName()
-                )
-        );
+        String opponent = userTeam.equals(match.getHomeTeam())
+                ? match.getAwayTeam().getName()
+                : match.getHomeTeam().getName();
 
-        subtitle.setStyle(
-                "-fx-font-size: 14px; " +
-                        "-fx-text-fill: #aaaaaa;"
-        );
+        Label vsLabel = new Label("VERSUS " + opponent.toUpperCase());
+        vsLabel.getStyleClass().add("vs-label");
+
+        VBox titleBox = new VBox(5, title, vsLabel);
+        titleBox.setAlignment(Pos.CENTER);
 
         List<Player> available = new ArrayList<>();
 
         for (Player p : userTeam.getRoster()) {
-
             if (!p.isInjured()) {
                 available.add(p);
             }
         }
 
         ListView<Player> rosterView = new ListView<>();
-
         rosterView.getItems().addAll(available);
-
         rosterView.setCellFactory(lv -> playerCell());
-
-        rosterView.getSelectionModel().setSelectionMode(
-                javafx.scene.control.SelectionMode.MULTIPLE
-        );
-
-        rosterView.setPrefHeight(360);
+        rosterView.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
+        rosterView.getStyleClass().add("standings-table");
+        rosterView.setPrefHeight(380);
+        rosterView.setMaxWidth(600);
 
         List<Player> sortedBySkill = new ArrayList<>(available);
-
-        sortedBySkill.sort(
-                (a, b) -> Integer.compare(
-                        b.getOverallSkill(),
-                        a.getOverallSkill()
-                )
-        );
+        sortedBySkill.sort((a, b) -> Integer.compare(b.getOverallSkill(), a.getOverallSkill()));
 
         int defaultPicks = Math.min(n, sortedBySkill.size());
 
         for (int i = 0; i < defaultPicks; i++) {
-
             rosterView.getSelectionModel().select(sortedBySkill.get(i));
         }
 
         picked.clear();
+        picked.addAll(rosterView.getSelectionModel().getSelectedItems());
 
-        picked.addAll(
-                rosterView.getSelectionModel().getSelectedItems()
-        );
+        countLabel = new Label(picked.size() + " / " + n + " PLAYERS SELECTED");
+        countLabel.getStyleClass().add("period-label");
 
-        countLabel = new Label(
-                picked.size() + " / " + n + " picked"
-        );
+        updateCountLabel(n);
 
-        countLabel.setStyle(
-                "-fx-font-size: 14px; " +
-                        "-fx-text-fill: #2ecc71;"
-        );
+        rosterView.getSelectionModel().getSelectedItems().addListener(
+                (javafx.collections.ListChangeListener<Player>) c -> {
+                    picked.clear();
+                    picked.addAll(rosterView.getSelectionModel().getSelectedItems());
+                    updateCountLabel(n);
+                });
 
-        rosterView.getSelectionModel()
-                .getSelectedItems()
-                .addListener(
-                        (javafx.collections.ListChangeListener<Player>) c -> {
-
-                            picked.clear();
-
-                            picked.addAll(
-                                    rosterView.getSelectionModel().getSelectedItems()
-                            );
-
-                            countLabel.setText(
-                                    picked.size() + " / " + n + " picked"
-                            );
-
-                            countLabel.setStyle(
-                                    "-fx-font-size: 14px; -fx-text-fill: "
-                                            + (
-                                            picked.size() == n
-                                                    ? "#2ecc71"
-                                                    : "#e67e22"
-                                    )
-                                            + ";"
-                            );
-                        }
-                );
-
-        Button autoBtn = new Button("Auto-Pick Best");
-
-        autoBtn.setPrefWidth(150);
-        autoBtn.setPrefHeight(40);
-
-        autoBtn.setStyle(
-                "-fx-background-color: #3498db; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-background-radius: 8;"
-        );
+        Button autoBtn = new Button("⚡ AUTO-PICK");
+        autoBtn.getStyleClass().add("menu-button");
+        autoBtn.setPrefWidth(160);
 
         autoBtn.setOnAction(e -> {
-
             rosterView.getSelectionModel().clearSelection();
 
             for (int i = 0; i < defaultPicks; i++) {
-
                 rosterView.getSelectionModel().select(sortedBySkill.get(i));
             }
         });
 
-        Button confirmBtn = new Button("Confirm & Kick Off");
-
-        confirmBtn.setPrefWidth(180);
-        confirmBtn.setPrefHeight(45);
-
-        confirmBtn.setStyle(
-                "-fx-background-color: #2ecc71; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-font-size: 14px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-background-radius: 8;"
-        );
-
+        Button confirmBtn = new Button("⚽ CONFIRM & START");
+        confirmBtn.getStyleClass().add("start-button");
+        confirmBtn.setPrefWidth(220);
         confirmBtn.setOnAction(e -> confirm(n));
 
-        Button cancelBtn = new Button("Cancel");
-
-        cancelBtn.setPrefWidth(120);
-        cancelBtn.setPrefHeight(45);
-
-        cancelBtn.setStyle(
-                "-fx-background-color: #e74c3c; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-background-radius: 8;"
-        );
+        Button cancelBtn = new Button("✕ CANCEL");
+        cancelBtn.getStyleClass().add("back-button");
+        cancelBtn.setPrefWidth(140);
 
         cancelBtn.setOnAction(e -> {
-
             if (onCancel != null) {
                 onCancel.run();
             }
         });
 
-        HBox buttons = new HBox(
-                15,
-                autoBtn,
-                confirmBtn,
-                cancelBtn
-        );
-
+        HBox buttons = new HBox(20, autoBtn, confirmBtn, cancelBtn);
         buttons.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(
-                12,
-                title,
-                subtitle,
-                countLabel,
-                rosterView,
-                buttons
-        );
+        Rectangle botLine = new Rectangle(SCENE_WIDTH - 100, 2);
+        botLine.setStyle("-fx-fill: linear-gradient(to right, transparent, rgba(241,196,15,0.55), transparent);");
 
-        layout.setAlignment(Pos.TOP_CENTER);
+        VBox content = new VBox(25, topLine, titleBox, countLabel, rosterView, buttons, botLine);
+        content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(40));
 
-        layout.setPadding(new Insets(25));
+        StackPane root = new StackPane(content);
+        root.getStyleClass().add("main-background");
 
-        layout.setStyle("-fx-background-color: #1E1E2E;");
+        Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
 
-        Scene scene = new Scene(layout, 700, 600);
+        String css = Objects.requireNonNull(
+                getClass().getResource("/style.css")
+        ).toExternalForm();
 
-        stage.setTitle("Lineup - " + userTeam.getName());
+        scene.getStylesheets().add(css);
 
+        stage.setTitle("Lineup Selection - " + userTeam.getName());
         stage.setScene(scene);
-
         stage.show();
     }
 
+    private void updateCountLabel(int n) {
+        countLabel.setText(picked.size() + " / " + n + " PLAYERS SELECTED");
+
+        if (picked.size() == n) {
+            countLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
+        } else {
+            countLabel.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
+        }
+    }
+
     private void confirm(int n) {
-
         if (picked.size() != n) {
-
-            new Alert(
+            Alert alert = new Alert(
                     Alert.AlertType.WARNING,
                     "You must pick exactly " + n + " players."
-            ).showAndWait();
+            );
 
+            alert.setHeaderText("Invalid Lineup");
+            alert.showAndWait();
             return;
         }
 
         List<Player> roster = userTeam.getRoster();
-
         List<Player> newOrder = new ArrayList<>(picked);
 
         for (Player p : roster) {
-
             if (!newOrder.contains(p)) {
-
                 newOrder.add(p);
             }
         }
 
         roster.clear();
-
         roster.addAll(newOrder);
 
         if (onConfirm != null) {
-
             onConfirm.run();
         }
     }
 
     private ListCell<Player> playerCell() {
-
-        return new ListCell<Player>() {
+        return new ListCell<>() {
 
             @Override
             protected void updateItem(Player p, boolean empty) {
-
                 super.updateItem(p, empty);
 
-                setText(
-                        empty || p == null
-                                ? null
-                                : p.getName()
-                                + "  ("
-                                + p.getPosition()
-                                + ", skill "
-                                + p.getOverallSkill()
-                                + ")"
-                );
+                if (empty || p == null) {
+                    setText(null);
+                    setStyle("-fx-background-color: transparent;");
+                } else {
+                    setText(
+                            p.getName().toUpperCase()
+                                    + "  ("
+                                    + p.getPosition()
+                                    + " | SKILL: "
+                                    + p.getOverallSkill()
+                                    + ")"
+                    );
+
+                    setStyle(
+                            "-fx-text-fill: white; "
+                                    + "-fx-font-weight: bold; "
+                                    + "-fx-padding: 8;"
+                    );
+                }
             }
         };
     }
