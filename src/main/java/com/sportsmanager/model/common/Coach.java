@@ -1,6 +1,10 @@
 package com.sportsmanager.model.common;
 
-public abstract class Coach {
+import java.io.Serializable;
+
+public abstract class Coach implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected String name;
     protected int experience;
 

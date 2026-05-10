@@ -1,8 +1,11 @@
 package com.sportsmanager.model.common;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Lineup {
+public class Lineup implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private List<Player> starters;
     private List<Player> substitutes;
     private Tactic tactic;
@@ -36,5 +39,5 @@ public class Lineup {
     public void setTactic(Tactic tactic) {
         this.tactic = tactic;
     }
-    //DenizKaraman461
+    //DenizKaraman461&yusuf
 }

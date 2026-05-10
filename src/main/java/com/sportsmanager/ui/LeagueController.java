@@ -1,26 +1,45 @@
 package com.sportsmanager.ui;
 
-import com.sportsmanager.core.*;
-import com.sportsmanager.interfaces.*;
-import com.sportsmanager.model.common.*;
-import com.sportsmanager.model.sports.football.*;
-import com.sportsmanager.model.sports.volleyball.*;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.*;
-import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
-import javafx.beans.property.*;
-import java.util.*;
+import com.sportsmanager.core.GameManager;
+import com.sportsmanager.core.LeagueManager;
+import com.sportsmanager.core.SaveManager;
+import com.sportsmanager.core.SportFactory;
+import com.sportsmanager.interfaces.IMatchEngine;
+import com.sportsmanager.interfaces.ISport;
+import com.sportsmanager.model.common.Coach;
+import com.sportsmanager.model.common.GameState;
+import com.sportsmanager.model.common.League;
+import com.sportsmanager.model.common.Match;
+import com.sportsmanager.model.common.Player;
+import com.sportsmanager.model.common.StandingsEntry;
+import com.sportsmanager.model.common.Team;
+import com.sportsmanager.model.sports.football.FootballCoach;
+import com.sportsmanager.model.sports.football.FootballPlayer;
+import com.sportsmanager.model.sports.football.FootballTeam;
+import com.sportsmanager.model.sports.volleyball.VolleyballCoach;
+import com.sportsmanager.model.sports.volleyball.VolleyballPlayer;
+import com.sportsmanager.model.sports.volleyball.VolleyballTeam;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.application.Platform;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
-import static com.sportsmanager.Main.SCENE_WIDTH;
-import static com.sportsmanager.Main.SCENE_HEIGHT;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
 
 public class LeagueController {
 
@@ -30,36 +49,52 @@ public class LeagueController {
     private League league;
     private LeagueManager leagueManager;
     private int currentWeek = 1;
-    private Label weekLabel;
     private Team userTeam;
+
+    private Label weekLabel;
     private Button simulateBtn;
 
     private static final String[] TEAM_NAMES = {
             "Galatasaray", "Fenerbahce", "Besiktas", "Trabzonspor",
-            "Basaksehir", "Sivasspor", "Konyaspor", "Antalyaspor"
+            "Basaksehir", "Sivasspor", "Konyaspor", "Antalyaspor",
+            "Goztepe", "Kayserispor", "Alanyaspor", "Adana Demir",
+            "Hatayspor", "Kasimpasa", "Rizespor", "Gaziantep",
+            "Ankaragucu", "Pendikspor", "Samsunspor", "Istanbulspor"
     };
 
     private static final String[] PLAYER_NAMES = {
             "Ahmet", "Mehmet", "Ali", "Veli", "Hasan", "Huseyin",
-            "Mustafa", "Ibrahim", "Yusuf", "Emre", "Burak", "Arda"
+            "Mustafa", "Ibrahim", "Yusuf", "Emre", "Burak", "Arda",
+            "Cenk", "Hakan", "Kerem", "Salih", "Okan", "Caner",
+            "Selim", "Deniz", "Mert", "Eren", "Baris", "Tolga",
+            "Sinan", "Furkan", "Berkay", "Ozan", "Umut", "Berke"
     };
 
     public LeagueController(Stage stage, String sportType, Team userTeam) {
-        this.stage         = stage;
-        this.sportType     = sportType;
-        this.userTeam      = userTeam;
-        this.sport         = SportFactory.createSport(sportType);
+        this.stage = stage;
+        this.sportType = sportType;
+        this.userTeam = userTeam;
+        this.sport = SportFactory.createSport(sportType);
         this.leagueManager = new LeagueManager();
         setupLeague();
     }
 
-    public List<Team> getTeams() {
-        return league.getTeams();
+    public LeagueController(Stage stage, GameState state) {
+        this.stage = stage;
+        this.sportType = state.getSportType();
+        this.sport = SportFactory.createSport(state.getSportType());
+        this.leagueManager = new LeagueManager();
+        this.league = state.getLeague();
+        this.userTeam = state.getUserTeam();
+        this.currentWeek = state.getCurrentWeek();
+
+        for (StandingsEntry e : league.getStandings()) {
+            e.setSport(sport);
+        }
     }
 
-    private String cssUrl() {
-        return Objects.requireNonNull(
-                getClass().getResource("/style.css")).toExternalForm();
+    public List<Team> getTeams() {
+        return league.getTeams();
     }
 
     private void setupLeague() {
@@ -68,357 +103,472 @@ public class LeagueController {
 
         for (String name : TEAM_NAMES) {
             Team team;
-            if (sportType.equalsIgnoreCase("football")) {
+
+            if ("football".equalsIgnoreCase(sportType)) {
                 FootballTeam ft = new FootballTeam(name);
-                for (int i = 0; i < 11; i++) {
+
+                for (int i = 0; i < 18; i++) {
                     ft.addPlayer(new FootballPlayer(
                             PLAYER_NAMES[random.nextInt(PLAYER_NAMES.length)],
-                            60 + random.nextInt(30)));
+                            60 + random.nextInt(30)
+                    ));
                 }
-                ft.addCoach(new FootballCoach("Coach", random.nextInt(10) + 1));
+
+                ft.addCoach(new FootballCoach("Coach " + name, random.nextInt(10) + 1));
                 team = ft;
+
             } else {
+
                 VolleyballTeam vt = new VolleyballTeam(name);
-                for (int i = 0; i < 6; i++) {
+
+                for (int i = 0; i < 12; i++) {
                     vt.addPlayer(new VolleyballPlayer(
                             PLAYER_NAMES[random.nextInt(PLAYER_NAMES.length)],
-                            60 + random.nextInt(30)));
+                            60 + random.nextInt(30)
+                    ));
                 }
-                vt.addCoach(new VolleyballCoach("Coach", random.nextInt(10) + 1));
+
+                vt.addCoach(new VolleyballCoach("Coach " + name, random.nextInt(10) + 1));
                 team = vt;
             }
+
             teams.add(team);
         }
 
-        league = leagueManager.createLeague(sport.getSportName() + " League", teams);
-        List<StandingsEntry> standings = leagueManager.calcStandings(league);
-        league.setStandings(standings);
+        league = leagueManager.createLeague(sport.getSportName() + " League", teams, sport);
     }
 
     public void show() {
 
-        // ── Top line ─────────────────────────────────────────────
-        Rectangle topLine = new Rectangle(SCENE_WIDTH - 60, 2);
-        topLine.setStyle(
-                "-fx-fill: linear-gradient(to right," +
-                        " transparent, rgba(46,204,113,0.50), transparent);");
+        Label title = new Label(sport.getSportName() + " League");
+        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        // ── Header ───────────────────────────────────────────────
-        Label badge = new Label(sport.getSportName().toUpperCase() + "  ·  LEAGUE");
-        badge.setStyle(
-                "-fx-font-size: 10px; -fx-font-weight: bold;" +
-                        "-fx-text-fill: rgba(46,204,113,0.75);" +
-                        "-fx-letter-spacing: 4px;");
+        weekLabel = new Label(weekLabelText());
+        weekLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #aaaaaa;");
 
-        Label title = new Label(sport.getSportName().toUpperCase() + " LEAGUE");
-        title.getStyleClass().add("title-label");
-
-        weekLabel = new Label(currentWeek > 14 ? "SEASON COMPLETE" : "WEEK  " + currentWeek);
-        weekLabel.getStyleClass().add("week-label");
-
-        VBox header = new VBox(4, badge, title, weekLabel);
-        header.setAlignment(Pos.CENTER);
-
-        // ── Standings table ───────────────────────────────────────
         TableView<StandingsEntry> table = createTable();
 
-        // ── Buttons ───────────────────────────────────────────────
-        simulateBtn = new Button();
-        updateSimulateButton();
-        simulateBtn.setPrefWidth(240);
-        simulateBtn.setPrefHeight(50);
+        simulateBtn = new Button("Simulate Week " + currentWeek);
+        simulateBtn.setPrefWidth(200);
+        simulateBtn.setPrefHeight(45);
+        simulateBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
         simulateBtn.setOnAction(e -> simulateWeek(table));
 
-        Button backBtn = new Button("← BACK");
-        backBtn.setPrefWidth(130);
-        backBtn.setPrefHeight(50);
-        backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(e -> {
-            try {
-                Parent root = FXMLLoader.load(
-                        Objects.requireNonNull(getClass().getResource("/MainMenu.fxml")));
-                Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
-                scene.getStylesheets().add(cssUrl());
-                stage.setTitle("Sports Manager - Ultimate Edition");
-                stage.setScene(scene);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        Button viewMyTeam = new Button("My Team");
+        viewMyTeam.setPrefWidth(140);
+        viewMyTeam.setPrefHeight(45);
+        viewMyTeam.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
+
+        viewMyTeam.setOnAction(e -> {
+            if (userTeam != null) {
+                TeamController tc = new TeamController(stage, sportType, userTeam, league, leagueManager, userTeam);
+                tc.setOnBack(this::show);
+                tc.show();
             }
         });
-        
 
-        HBox buttons = new HBox(16, simulateBtn, backBtn);
+        Button scheduleBtn = new Button("Schedule");
+        scheduleBtn.setPrefWidth(120);
+        scheduleBtn.setPrefHeight(45);
+        scheduleBtn.setStyle("-fx-background-color: #1abc9c; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
+
+        scheduleBtn.setOnAction(e -> {
+            ScheduleController sc = new ScheduleController(stage, sportType, league, leagueManager, userTeam);
+            sc.setOnBack(this::show);
+            sc.show();
+        });
+
+        Button saveBtn = new Button("Save");
+        saveBtn.setPrefWidth(100);
+        saveBtn.setPrefHeight(45);
+        saveBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
+        saveBtn.setOnAction(e -> saveGame());
+
+        Button backBtn = new Button("Main Menu");
+        backBtn.setPrefWidth(120);
+        backBtn.setPrefHeight(45);
+        backBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;");
+        backBtn.setOnAction(e -> new MainMenuController(stage).show());
+
+        HBox buttons = new HBox(15, simulateBtn, viewMyTeam, scheduleBtn, saveBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
-        // ── Bottom line ───────────────────────────────────────────
-        Rectangle botLine = new Rectangle(SCENE_WIDTH - 60, 2);
-        botLine.setStyle(
-                "-fx-fill: linear-gradient(to right," +
-                        " transparent, rgba(241,196,15,0.38), transparent);");
+        VBox layout = new VBox(20);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(30));
+        layout.setStyle("-fx-background-color: #1E1E2E;");
+        layout.getChildren().addAll(title, weekLabel, table, buttons);
 
-        // ── Content (transparent) ─────────────────────────────────
-        VBox content = new VBox(20, topLine, header, table, buttons, botLine);
-        content.setAlignment(Pos.TOP_CENTER);
-        content.setPadding(new Insets(30, 40, 30, 40));
-        content.setStyle("-fx-background-color: transparent;");
+        Scene scene = new Scene(layout, 850, 600);
 
-        // ── ROOT — stadium background ─────────────────────────────
-        StackPane root = new StackPane(content);
-        root.getStyleClass().add("main-background");
-
-        Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
-        scene.getStylesheets().add(cssUrl());
-        stage.setTitle("Sports Manager - Ultimate Edition  ·  League");
         stage.setScene(scene);
+        stage.setTitle("League - " + sport.getSportName());
         stage.show();
     }
 
-    private void updateSimulateButton() {
-        if (currentWeek > 14) {
-            simulateBtn.setText("🏆  VIEW CHAMPION");
-            simulateBtn.getStyleClass().setAll("champion-button");
-        } else {
-            simulateBtn.setText("▶  SIMULATE  WEEK  " + currentWeek);
-            simulateBtn.getStyleClass().setAll("start-button");
+    private String weekLabelText() {
+
+        int total = leagueManager.totalWeeks(league);
+
+        if (currentWeek > total) {
+            return "Season finished";
         }
+
+        return "Week " + currentWeek + " / " + total;
     }
 
     private TableView<StandingsEntry> createTable() {
+
         TableView<StandingsEntry> table = new TableView<>();
-        table.getStyleClass().add("standings-table");
-        table.setFixedCellSize(46);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setStyle("-fx-background-color: #2D2D3E;");
 
-        // # rank
-        TableColumn<StandingsEntry, String> rankCol = new TableColumn<>("#");
-        rankCol.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) { setText(null); setStyle(""); return; }
-                int idx = getIndex() + 1;
-                setText(String.valueOf(idx));
-                String color = idx == 1 ? "rgba(241,196,15,0.90)"
-                        : idx == 2 ? "rgba(200,200,200,0.75)"
-                        : idx == 3 ? "rgba(205,127,50,0.80)"
-                        :            "rgba(255,255,255,0.35)";
-                setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;" +
-                        "-fx-alignment: center;");
-            }
-        });
-        rankCol.setPrefWidth(36);
-        rankCol.setResizable(false);
+        TableColumn<StandingsEntry, String> teamCol = new TableColumn<>("Team");
+        teamCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getTeam().getName()));
+        teamCol.setPrefWidth(180);
 
-        // Team name
-        TableColumn<StandingsEntry, String> teamCol = new TableColumn<>("TEAM");
-        teamCol.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().getTeam().getName()));
-        teamCol.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setText(null); setStyle(""); return; }
-                boolean isUser = userTeam != null && item.equals(userTeam.getName());
-                setText(isUser ? "▶  " + item.toUpperCase() : item.toUpperCase());
-                setStyle(isUser
-                        ? "-fx-text-fill: rgba(46,204,113,0.95); -fx-font-weight: bold;" +
-                        "-fx-alignment: center-left; -fx-padding: 0 0 0 10;"
-                        : "-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: bold;" +
-                        "-fx-alignment: center-left; -fx-padding: 0 0 0 10;");
-            }
-        });
-        teamCol.setPrefWidth(175);
+        TableColumn<StandingsEntry, Integer> playedCol = new TableColumn<>("P");
+        playedCol.setCellValueFactory(new PropertyValueFactory<>("played"));
+        playedCol.setPrefWidth(50);
 
-        // P / W / D / L
-        TableColumn<StandingsEntry, Integer> playedCol = makeIntCol("P", "played", 44);
-        TableColumn<StandingsEntry, Integer> winsCol   = makeIntCol("W", "wins",   44);
-        TableColumn<StandingsEntry, Integer> drawsCol  = makeIntCol("D", "draws",  44);
-        TableColumn<StandingsEntry, Integer> lossesCol = makeIntCol("L", "losses", 44);
+        TableColumn<StandingsEntry, Integer> winsCol = new TableColumn<>("W");
+        winsCol.setCellValueFactory(new PropertyValueFactory<>("wins"));
+        winsCol.setPrefWidth(50);
 
-        // Points
-        TableColumn<StandingsEntry, Integer> pointsCol = new TableColumn<>("PTS");
+        TableColumn<StandingsEntry, Integer> drawsCol = new TableColumn<>("D");
+        drawsCol.setCellValueFactory(new PropertyValueFactory<>("draws"));
+        drawsCol.setPrefWidth(50);
+
+        TableColumn<StandingsEntry, Integer> lossesCol = new TableColumn<>("L");
+        lossesCol.setCellValueFactory(new PropertyValueFactory<>("losses"));
+        lossesCol.setPrefWidth(50);
+
+        TableColumn<StandingsEntry, Integer> gfCol = new TableColumn<>("GF");
+        gfCol.setCellValueFactory(new PropertyValueFactory<>("goalsFor"));
+        gfCol.setPrefWidth(55);
+
+        TableColumn<StandingsEntry, Integer> gaCol = new TableColumn<>("GA");
+        gaCol.setCellValueFactory(new PropertyValueFactory<>("goalsAgainst"));
+        gaCol.setPrefWidth(55);
+
+        TableColumn<StandingsEntry, Integer> gdCol = new TableColumn<>("GD");
+        gdCol.setCellValueFactory(new PropertyValueFactory<>("goalDifference"));
+        gdCol.setPrefWidth(55);
+
+        TableColumn<StandingsEntry, Integer> pointsCol = new TableColumn<>("Pts");
         pointsCol.setCellValueFactory(new PropertyValueFactory<>("points"));
-        pointsCol.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setText(null); return; }
-                setText(String.valueOf(item));
-                setStyle("-fx-text-fill: rgba(241,196,15,0.95);" +
-                        "-fx-font-weight: bold; -fx-font-size: 14px;" +
-                        "-fx-alignment: center;");
-            }
-        });
-        pointsCol.setPrefWidth(54);
+        pointsCol.setPrefWidth(60);
 
-        // Inspect button
-        TableColumn<StandingsEntry, Void> actionCol = new TableColumn<>("");
-        actionCol.setPrefWidth(44);
-        actionCol.setResizable(false);
-        actionCol.setCellFactory(param -> new TableCell<>() {
-            private final Button btn = new Button("⚙");
-            {
-                applyStyle(false);
-                btn.setOnMouseEntered(e -> applyStyle(true));
-                btn.setOnMouseExited(e  -> applyStyle(false));
-                btn.setOnAction(event -> {
-                    StandingsEntry entry = getTableView().getItems().get(getIndex());
-                    TeamController tc = new TeamController(
-                            stage, sportType, entry.getTeam(), league, leagueManager, userTeam);
-                    tc.setOnBack(() -> show());
-                    tc.show();
-                });
-            }
-            private void applyStyle(boolean h) {
-                btn.setStyle(h
-                        ? "-fx-background-color: rgba(255,255,255,0.14);" +
-                        "-fx-border-color: rgba(255,255,255,0.35); -fx-border-width:1;" +
-                        "-fx-border-radius:6; -fx-background-radius:6;" +
-                        "-fx-text-fill:white; -fx-font-size:13; -fx-cursor:hand;"
-                        : "-fx-background-color: rgba(255,255,255,0.06);" +
-                        "-fx-border-color: rgba(255,255,255,0.14); -fx-border-width:1;" +
-                        "-fx-border-radius:6; -fx-background-radius:6;" +
-                        "-fx-text-fill:rgba(255,255,255,0.60); -fx-font-size:13; -fx-cursor:hand;");
-            }
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : btn);
-            }
-        });
+        table.getColumns().addAll(
+                teamCol,
+                playedCol,
+                winsCol,
+                drawsCol,
+                lossesCol,
+                gfCol,
+                gaCol,
+                gdCol,
+                pointsCol
+        );
 
-        table.getColumns().addAll(rankCol, actionCol, teamCol,
-                playedCol, winsCol, drawsCol, lossesCol, pointsCol);
-
-        // Row factory — left border highlight + double-click
         table.setRowFactory(tv -> {
-            TableRow<StandingsEntry> row = new TableRow<>() {
-                @Override
-                protected void updateItem(StandingsEntry item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) { setStyle(""); return; }
-                    boolean isUser = userTeam != null
-                            && item.getTeam().getName().equals(userTeam.getName());
-                    if (getIndex() == 0) {
-                        setStyle("-fx-border-color: transparent transparent transparent" +
-                                " rgba(241,196,15,0.55); -fx-border-width: 0 0 0 3;");
-                    } else if (isUser) {
-                        setStyle("-fx-border-color: transparent transparent transparent" +
-                                " rgba(46,204,113,0.65); -fx-border-width: 0 0 0 3;");
-                    } else {
-                        setStyle("");
-                    }
-                }
-            };
+
+            TableRow<StandingsEntry> row = new TableRow<>();
+
             row.setOnMouseClicked(e -> {
+
                 if (!row.isEmpty() && e.getClickCount() == 2) {
+
                     TeamController tc = new TeamController(
-                            stage, sportType, row.getItem().getTeam(),
-                            league, leagueManager, userTeam);
+                            stage,
+                            sportType,
+                            row.getItem().getTeam(),
+                            league,
+                            leagueManager,
+                            userTeam
+                    );
+
                     tc.setOnBack(this::show);
                     tc.show();
                 }
             });
+
             return row;
         });
 
         updateTable(table);
+
         return table;
     }
 
-    private TableColumn<StandingsEntry, Integer> makeIntCol(
-            String title, String prop, double w) {
-        TableColumn<StandingsEntry, Integer> col = new TableColumn<>(title);
-        col.setCellValueFactory(new PropertyValueFactory<>(prop));
-        col.setCellFactory(c -> new TableCell<>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                setText((empty || item == null) ? null : String.valueOf(item));
-                setStyle("-fx-alignment: center; -fx-text-fill: rgba(255,255,255,0.75);");
-            }
-        });
-        col.setPrefWidth(w);
-        return col;
-    }
-
     private void simulateWeek(TableView<StandingsEntry> table) {
-        if (currentWeek > 14) { checkChampionship(); return; }
+
+        int total = leagueManager.totalWeeks(league);
+
+        if (currentWeek > total) {
+            handleSeasonEnd();
+            return;
+        }
+
+        runTrainingPhase();
 
         List<Match> weekMatches = league.getFixture().getMatchesByWeek(currentWeek);
+
         if (weekMatches == null || weekMatches.isEmpty()) {
-            currentWeek++;
-            checkChampionship();
+            advanceWeek(table);
             return;
         }
 
         Match userMatch = null;
+
         for (Match match : weekMatches) {
-            if (userTeam != null && match.getHomeTeam() != null && match.getAwayTeam() != null) {
-                if (match.getHomeTeam().getName().equals(userTeam.getName()) ||
-                        match.getAwayTeam().getName().equals(userTeam.getName())) {
-                    userMatch = match;
-                    continue;
-                }
-            }
-            if (!match.isPlayed()) {
+
+            if (userTeam != null &&
+                    (match.getHomeTeam().equals(userTeam) ||
+                            match.getAwayTeam().equals(userTeam))) {
+
+                userMatch = match;
+
+            } else if (!match.isPlayed()) {
+
                 IMatchEngine engine = SportFactory.createEngine(sportType);
+
                 GameManager gm = new GameManager(sport, engine, league);
+
                 gm.playMatch(match);
+
                 leagueManager.processMatchResult(league, match, sportType);
             }
         }
 
         if (userMatch != null && !userMatch.isPlayed()) {
-            MatchController mc = new MatchController(
-                    stage, sportType, userMatch, league, leagueManager, userTeam);
-            mc.setOnFinished(() -> {
-                currentWeek++;
-                Platform.runLater(() -> {
+
+            final Match um = userMatch;
+
+            LineupController lc = new LineupController(stage, sport, userTeam, um);
+
+            lc.setOnConfirm(() -> {
+
+                MatchController mc = new MatchController(
+                        stage,
+                        sportType,
+                        um,
+                        league,
+                        leagueManager,
+                        userTeam
+                );
+
+                mc.setOnFinished(() -> {
+                    advanceWeek(table);
                     show();
-                    checkChampionship();
                 });
+
+                mc.show();
             });
-            mc.show();
+
+            lc.setOnCancel(this::show);
+
+            lc.show();
+
         } else {
-            currentWeek++;
-            updateTable(table);
-            checkChampionship();
-            updateUIState();
+
+            advanceWeek(table);
         }
     }
 
-    private void updateUIState() {
-        weekLabel.setText(currentWeek > 14 ? "SEASON COMPLETE" : "WEEK  " + currentWeek);
-        updateSimulateButton();
-    }
+    private void runTrainingPhase() {
 
-    private void checkChampionship() {
-        if (currentWeek > 14) {
-            try {
-                StandingsEntry winner = league.getStandings().get(0);
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Championship.fxml"));
-                Parent root = loader.load();
-                ChampionshipController ctrl = loader.getController();
-                ctrl.initData(stage, winner);
-                Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
-                scene.getStylesheets().add(cssUrl());
-                stage.setScene(scene);
-            } catch (Exception e) {
-                e.printStackTrace();
+        for (Team t : league.getTeams()) {
+
+            for (Coach c : t.getCoaches()) {
+
+                for (Player p : t.getRoster()) {
+
+                    c.trainPlayer(p);
+                }
             }
         }
     }
 
-    private void updateTable(TableView<StandingsEntry> table) {
-        table.getItems().clear();
-        List<StandingsEntry> sorted = new ArrayList<>(league.getStandings());
-        sorted.sort((a, b) -> {
-            if (b.getPoints() != a.getPoints())               return b.getPoints() - a.getPoints();
-            if (b.getGoalDifference() != a.getGoalDifference())
-                return b.getGoalDifference() - a.getGoalDifference();
-            return b.getGoalsFor() - a.getGoalsFor();
+    private void advanceWeek(TableView<StandingsEntry> table) {
+
+        for (Team t : league.getTeams()) {
+
+            for (Player p : t.getRoster()) {
+
+                p.decrementInjury();
+            }
+        }
+
+        currentWeek++;
+
+        weekLabel.setText(weekLabelText());
+
+        int total = leagueManager.totalWeeks(league);
+
+        if (currentWeek > total) {
+
+            simulateBtn.setText("Season Ended");
+
+            updateTable(table);
+
+            handleSeasonEnd();
+
+        } else {
+
+            simulateBtn.setText("Simulate Week " + currentWeek);
+
+            updateTable(table);
+        }
+    }
+
+    private void handleSeasonEnd() {
+
+        List<StandingsEntry> sorted = sortedStandings();
+
+        Team champion = sorted.isEmpty() ? null : sorted.get(0).getTeam();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        alert.setTitle("Season Finished");
+
+        alert.setHeaderText(
+                champion != null
+                        ? champion.getName() + " are the champions!"
+                        : "Season finished"
+        );
+
+        StringBuilder body = new StringBuilder("Final standings:\n\n");
+
+        int rank = 1;
+
+        for (StandingsEntry e : sorted) {
+
+            body.append(rank++)
+                    .append(". ")
+                    .append(e.getTeam().getName())
+                    .append("  -  ")
+                    .append(e.getPoints())
+                    .append(" pts\n");
+        }
+
+        body.append("\nStart a new season with the same teams?");
+
+        alert.setContentText(body.toString());
+
+        javafx.scene.control.ButtonType yes =
+                new javafx.scene.control.ButtonType("New Season");
+
+        javafx.scene.control.ButtonType no =
+                new javafx.scene.control.ButtonType("Back to Menu");
+
+        alert.getButtonTypes().setAll(yes, no);
+
+        alert.showAndWait().ifPresent(bt -> {
+
+            if (bt == yes) {
+                startNewSeason();
+            } else {
+                new MainMenuController(stage).show();
+            }
         });
-        table.getItems().addAll(sorted);
+    }
+
+    private void startNewSeason() {
+
+        currentWeek = 1;
+
+        for (Team t : league.getTeams()) {
+
+            t.setPoints(0);
+
+            for (Player p : t.getRoster()) {
+
+                p.setInjuryDuration(0);
+            }
+        }
+
+        League fresh = leagueManager.createLeague(
+                league.getName(),
+                new ArrayList<>(league.getTeams()),
+                sport
+        );
+
+        this.league = fresh;
+
+        show();
+    }
+
+    private List<StandingsEntry> sortedStandings() {
+
+        List<StandingsEntry> sorted =
+                new ArrayList<>(league.getStandings());
+
+        sorted.sort(
+                Comparator
+                        .comparingInt(StandingsEntry::getPoints).reversed()
+                        .thenComparing(
+                                Comparator.comparingInt(
+                                        StandingsEntry::getGoalDifference
+                                ).reversed()
+                        )
+                        .thenComparing(
+                                Comparator.comparingInt(
+                                        StandingsEntry::getGoalsFor
+                                ).reversed()
+                        )
+                        .thenComparing(
+                                e -> e.getTeam().getName()
+                        )
+        );
+
+        return sorted;
+    }
+
+    private void updateTable(TableView<StandingsEntry> table) {
+
+        table.getItems().clear();
+
+        table.getItems().addAll(sortedStandings());
+    }
+
+    private void saveGame() {
+
+        FileChooser fc = new FileChooser();
+
+        fc.setTitle("Save Game");
+
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Save File", "*.sav")
+        );
+
+        fc.setInitialFileName("sportsmanager.sav");
+
+        File file = fc.showSaveDialog(stage);
+
+        if (file == null) return;
+
+        GameState state = new GameState(
+                sportType,
+                league,
+                userTeam,
+                currentWeek
+        );
+
+        try {
+
+            SaveManager.save(file, state);
+
+            new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "Game saved."
+            ).showAndWait();
+
+        } catch (Exception ex) {
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Save failed: " + ex.getMessage()
+            ).showAndWait();
+        }
     }
 }

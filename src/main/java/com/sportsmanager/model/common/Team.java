@@ -1,9 +1,12 @@
 package com.sportsmanager.model.common;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Team {
+public abstract class Team implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected String name;
     protected List<Player> roster;
     protected List<Coach> coaches;
@@ -75,5 +78,5 @@ public abstract class Team {
     public void addXp(int amount) { this.xp += amount; }
     public boolean isTrainedThisWeek() { return trainedThisWeek; }
     public void setTrainedThisWeek(boolean trained) { this.trainedThisWeek = trained; }
-    //DenizKaraman461 & Selim Palanduz
+    //DenizKaraman461 & Selim Palanduz & yusufemiryılmaz
 }

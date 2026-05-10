@@ -1,8 +1,11 @@
 package com.sportsmanager.model.common;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MatchResult {
+public class MatchResult implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Team homeTeam;
     private Team awayTeam;
     private List<PeriodResult> periods;
@@ -32,5 +35,5 @@ public class MatchResult {
     public List<PeriodResult> getPeriods() { return periods; }
     public Team getHomeTeam() { return homeTeam; }
     public Team getAwayTeam() { return awayTeam; }
-    //DenizKaraman461
+    //DenizKaraman461&yusuf
 }

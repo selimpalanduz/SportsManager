@@ -1,6 +1,10 @@
 package com.sportsmanager.model.common;
 
-public class PeriodResult {
+import java.io.Serializable;
+
+public class PeriodResult implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int homeScore;
     private int awayScore;
 
@@ -24,5 +28,5 @@ public class PeriodResult {
     public void setAwayScore(int awayScore) {
         this.awayScore = awayScore;
     }
-    //DenizKaraman461
+    //DenizKaraman461&yusuf
 }

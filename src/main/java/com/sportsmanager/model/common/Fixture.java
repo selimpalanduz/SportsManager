@@ -1,11 +1,14 @@
 package com.sportsmanager.model.common;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Fixture {
+public class Fixture implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Map<Integer, List<Match>> weeklyMatches;
 
     public Fixture() {
@@ -23,5 +26,9 @@ public class Fixture {
     public Map<Integer, List<Match>> getAllMatches() {
         return weeklyMatches;
     }
-    //DenizKaraman461
+
+    public void clear() {
+        weeklyMatches.clear();
+    }
+    //DenizKaraman461&yusufemiryilmaz
 }

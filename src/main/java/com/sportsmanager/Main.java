@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class Main extends Application {
 
-    // Sabit çözünürlük — tüm controller'lar bu sabitleri kullanmalı
+
     public static final int SCENE_WIDTH  = 1280;
     public static final int SCENE_HEIGHT = 720;
 
@@ -25,7 +25,7 @@ public class Main extends Application {
         scene.getStylesheets().add(css);
 
         primaryStage.setTitle("Sports Manager - Ultimate Edition");
-        primaryStage.setResizable(false);   // ← Pencere boyutu kilidi
+        primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

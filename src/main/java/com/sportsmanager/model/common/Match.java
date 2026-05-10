@@ -1,6 +1,10 @@
 package com.sportsmanager.model.common;
 
-public class Match {
+import java.io.Serializable;
+
+public class Match implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Team homeTeam;
     private Team awayTeam;
     private Lineup homeLineup;
