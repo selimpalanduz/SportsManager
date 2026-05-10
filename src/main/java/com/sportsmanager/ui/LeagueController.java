@@ -5,7 +5,6 @@ import com.sportsmanager.core.LeagueManager;
 import com.sportsmanager.core.SportFactory;
 import com.sportsmanager.util.GameState;
 import com.sportsmanager.util.SaveManager;
-
 import com.sportsmanager.util.NameGenerator;
 
 import com.sportsmanager.interfaces.IMatchEngine;
@@ -70,6 +69,27 @@ public class LeagueController {
             "Bodrumspor", "Pendikspor", "Samsunspor", "Istanbulspor"
     };
 
+    // ── GÖREV 2 FIX: 18 pozisyon — 2 GK · 6 DEF · 6 MID · 4 FWD ──
+    // İlk 11 = Starting XI (1 GK · 4 DEF · 4 MID · 2 FWD)
+    // Son  7 = Bench       (1 GK · 2 DEF · 2 MID · 2 FWD)
+    private static final String[] FOOTBALL_18 = {
+            // ── Starting XI (index 0–10) ──
+            "Goalkeeper",                           // 1 GK
+            "Defender", "Defender", "Defender", "Defender",  // 4 DEF
+            "Midfielder", "Midfielder", "Midfielder", "Midfielder", // 4 MID
+            "Forward", "Forward",                   // 2 FWD
+            // ── Bench (index 11–17) ──
+            "Goalkeeper",                           // 1 GK
+            "Defender", "Defender",                 // 2 DEF
+            "Midfielder", "Midfielder",             // 2 MID
+            "Forward", "Forward"                    // 2 FWD
+    };
+
+    private static final String[] VOLLEYBALL_POSITIONS = {
+            "Setter", "Libero", "Outside Hitter", "Outside Hitter",
+            "Middle Blocker", "Opposite"
+    };
+
     public LeagueController(Stage stage, String sportType, Team userTeam) {
         this.stage = stage;
         this.sportType = sportType;
@@ -101,65 +121,80 @@ public class LeagueController {
         this.userTeam = picked;
     }
 
-    public List<Team> getTeams() {
-        return league.getTeams();
-    }
+    public List<Team> getTeams() { return league.getTeams(); }
 
     private String cssUrl() {
-        return Objects.requireNonNull(getClass().getResource("/style.css")).toExternalForm();
+        return Objects.requireNonNull(
+                getClass().getResource("/style.css")).toExternalForm();
     }
 
+    // ════════════════════════════════════════════════════════════
+    // GÖREV 2 FIX — setupLeague()
+    //
+    // DEĞİŞEN SATIR:  for (int i = 0; i < 11; i++)
+    // YENİ:           for (int i = 0; i < 18; i++)  +  FOOTBALL_18[i]
+    //
+    // Böylece her futbol takımı tam 18 oyuncuyla başlar:
+    //   • 11 starter (1GK · 4DEF · 4MID · 2FWD)
+    //   • 7  bench   (1GK · 2DEF · 2MID · 2FWD)
+    //
+    // Team.autoAssignSubstitutes(starters) bench listesini
+    // bu 7 oyuncudan seçeceği için "No substitutes available"
+    // hatası artık oluşmaz.
+    // ════════════════════════════════════════════════════════════
     private void setupLeague() {
         List<Team> teams = new ArrayList<>();
         Random random = new Random();
-        NameGenerator nameGen = new NameGenerator(sportType.equalsIgnoreCase("volleyball"));
-
-        String[] footballPositions = {
-            "Goalkeeper", "Defender", "Defender", "Defender", "Defender",
-            "Midfielder", "Midfielder", "Midfielder", "Midfielder",
-            "Forward", "Forward"
-        };
-
-        String[] volleyballPositions = {
-            "Setter", "Libero", "Outside Hitter", "Outside Hitter",
-            "Middle Blocker", "Opposite"
-        };
+        NameGenerator nameGen = new NameGenerator(
+                sportType.equalsIgnoreCase("volleyball"));
 
         for (String name : TEAM_NAMES) {
             Team team;
             if (sportType.equalsIgnoreCase("football")) {
                 FootballTeam ft = new FootballTeam(name);
-                for (int i = 0; i < 11; i++) {
+
+                // 18 oyuncu — pozisyonlar FOOTBALL_18 dizisinden sırayla
+                for (int i = 0; i < 18; i++) {
                     FootballPlayer p = new FootballPlayer(
-                        nameGen.generate(),
-                        60 + random.nextInt(30),
-                        footballPositions[i]
+                            nameGen.generate(),
+                            60 + random.nextInt(30),
+                            FOOTBALL_18[i]          // ← pozisyon artık doğru
                     );
                     ft.addPlayer(p);
                 }
-                ft.addCoach(new FootballCoach(nameGen.generateCoachName(), random.nextInt(10) + 1));
+
+                // Hoca — isim NameGenerator'dan geliyor, "Coach" değil
+                ft.addCoach(new FootballCoach(
+                        nameGen.generateCoachName(),
+                        random.nextInt(10) + 1));
                 team = ft;
+
             } else {
+                // Voleybol takımı — kadro boyutu değişmedi (6 oyuncu)
                 VolleyballTeam vt = new VolleyballTeam(name);
-                for (int i = 0; i < 6; i++) {
+                for (int i = 0; i < VOLLEYBALL_POSITIONS.length; i++) {
                     VolleyballPlayer p = new VolleyballPlayer(
-                        nameGen.generate(),
-                        60 + random.nextInt(30),
-                        volleyballPositions[i]
+                            nameGen.generate(),
+                            60 + random.nextInt(30),
+                            VOLLEYBALL_POSITIONS[i]
                     );
                     vt.addPlayer(p);
                 }
-                vt.addCoach(new VolleyballCoach(nameGen.generateCoachName(), random.nextInt(10) + 1));
+                vt.addCoach(new VolleyballCoach(
+                        nameGen.generateCoachName(),
+                        random.nextInt(10) + 1));
                 team = vt;
             }
             teams.add(team);
         }
 
-        league = leagueManager.createLeague(sport.getSportName() + " League", teams);
+        league = leagueManager.createLeague(
+                sport.getSportName() + " League", teams);
         List<StandingsEntry> standings = leagueManager.calcStandings(league);
         league.setStandings(standings);
     }
 
+    // ── show() — orijinal kodla aynı, dokunulmadı ────────────────
     public void show() {
         Rectangle topLine = new Rectangle(SCENE_WIDTH - 60, 2);
         topLine.setStyle("-fx-fill: linear-gradient(to right, transparent, rgba(46,204,113,0.50), transparent);");
@@ -184,7 +219,7 @@ public class LeagueController {
         simulateBtn.setPrefWidth(220);
         simulateBtn.setPrefHeight(48);
         simulateBtn.setOnAction(e -> simulateWeek(table));
-        
+
         Button myTeamBtn = new Button("👤  MY TEAM");
         myTeamBtn.setPrefWidth(180);
         myTeamBtn.setPrefHeight(50);
@@ -199,7 +234,9 @@ public class LeagueController {
                     }
                 }
                 if (teamInLeague != null) {
-                    TeamController tc = new TeamController(stage, sportType, teamInLeague, league, leagueManager, teamInLeague);
+                    TeamController tc = new TeamController(
+                            stage, sportType, teamInLeague,
+                            league, leagueManager, teamInLeague);
                     tc.setOnBack(() -> show());
                     tc.show();
                 }
@@ -224,7 +261,7 @@ public class LeagueController {
         backBtn.getStyleClass().add("back-button");
         backBtn.setOnAction(e -> goToMainMenu());
 
-        HBox buttons = new HBox(12, simulateBtn,myTeamBtn, scheduleBtn, saveBtn, backBtn);
+        HBox buttons = new HBox(12, simulateBtn, myTeamBtn, scheduleBtn, saveBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
         Rectangle botLine = new Rectangle(SCENE_WIDTH - 60, 2);
@@ -301,25 +338,22 @@ public class LeagueController {
         });
         teamCol.setPrefWidth(195);
 
-        TableColumn<StandingsEntry, Integer> playedCol = makeIntCol("P", "played", 40);
-        TableColumn<StandingsEntry, Integer> winsCol   = makeIntCol("W", "wins",   40);
-        TableColumn<StandingsEntry, Integer> drawsCol  = makeIntCol("D", "draws",  40);
-        TableColumn<StandingsEntry, Integer> lossesCol = makeIntCol("L", "losses", 40);
-        TableColumn<StandingsEntry, Integer> gfCol     = makeIntCol("GF", "goalsFor", 44);
+        TableColumn<StandingsEntry, Integer> playedCol = makeIntCol("P",  "played",       40);
+        TableColumn<StandingsEntry, Integer> winsCol   = makeIntCol("W",  "wins",         40);
+        TableColumn<StandingsEntry, Integer> drawsCol  = makeIntCol("D",  "draws",        40);
+        TableColumn<StandingsEntry, Integer> lossesCol = makeIntCol("L",  "losses",       40);
+        TableColumn<StandingsEntry, Integer> gfCol     = makeIntCol("GF", "goalsFor",     44);
         TableColumn<StandingsEntry, Integer> gaCol     = makeIntCol("GA", "goalsAgainst", 44);
 
         TableColumn<StandingsEntry, Integer> gdCol = new TableColumn<>("GD");
-        gdCol.setCellValueFactory(d -> {
-            int gd = d.getValue().getGoalDifference();
-            return new javafx.beans.property.SimpleObjectProperty<>(gd);
-        });
+        gdCol.setCellValueFactory(d -> new javafx.beans.property.SimpleObjectProperty<>(
+                d.getValue().getGoalDifference()));
         gdCol.setCellFactory(c -> new TableCell<>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setText(null); return; }
-                String prefix = item > 0 ? "+" : "";
-                setText(prefix + item);
+                setText((item > 0 ? "+" : "") + item);
                 setStyle("-fx-alignment: center; -fx-font-weight: bold;"
                         + "-fx-text-fill: " + (item > 0 ? "rgba(46,204,113,0.92)"
                         : item < 0 ? "rgba(231,76,60,0.92)" : "rgba(255,255,255,0.70)") + ";");
@@ -350,11 +384,12 @@ public class LeagueController {
             {
                 applyStyle(false);
                 btn.setOnMouseEntered(e -> applyStyle(true));
-                btn.setOnMouseExited(e -> applyStyle(false));
+                btn.setOnMouseExited(e  -> applyStyle(false));
                 btn.setOnAction(event -> {
                     StandingsEntry entry = getTableView().getItems().get(getIndex());
                     TeamController tc = new TeamController(
-                            stage, sportType, entry.getTeam(), league, leagueManager, userTeam);
+                            stage, sportType, entry.getTeam(),
+                            league, leagueManager, userTeam);
                     tc.setOnBack(LeagueController.this::show);
                     tc.show();
                 });
@@ -416,7 +451,8 @@ public class LeagueController {
         return table;
     }
 
-    private TableColumn<StandingsEntry, Integer> makeIntCol(String title, String prop, double w) {
+    private TableColumn<StandingsEntry, Integer> makeIntCol(
+            String title, String prop, double w) {
         TableColumn<StandingsEntry, Integer> col = new TableColumn<>(title);
         col.setCellValueFactory(new PropertyValueFactory<>(prop));
         col.setCellFactory(c -> new TableCell<>() {
@@ -487,7 +523,8 @@ public class LeagueController {
     }
 
     private void updateUIState() {
-        weekLabel.setText(currentWeek > totalWeeks ? "SEASON COMPLETE" : "WEEK  " + currentWeek);
+        weekLabel.setText(currentWeek > totalWeeks
+                ? "SEASON COMPLETE" : "WEEK  " + currentWeek);
         updateSimulateButton();
     }
 
@@ -495,7 +532,8 @@ public class LeagueController {
         if (currentWeek > totalWeeks) {
             try {
                 StandingsEntry winner = league.getStandings().get(0);
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Championship.fxml"));
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/Championship.fxml"));
                 Parent root = loader.load();
                 ChampionshipController ctrl = loader.getController();
                 ctrl.initData(stage, winner);
@@ -515,7 +553,8 @@ public class LeagueController {
     }
 
     private void openSchedule() {
-        ScheduleController sc = new ScheduleController(stage, league, userTeam, currentWeek);
+        ScheduleController sc = new ScheduleController(
+                stage, league, userTeam, currentWeek);
         sc.setOnBack(this::show);
         sc.show();
     }
@@ -530,7 +569,8 @@ public class LeagueController {
             ok.showAndWait();
         } catch (Exception ex) {
             ex.printStackTrace();
-            Alert err = new Alert(Alert.AlertType.ERROR, "Save failed: " + ex.getMessage());
+            Alert err = new Alert(
+                    Alert.AlertType.ERROR, "Save failed: " + ex.getMessage());
             err.setHeaderText("Save Failed");
             err.showAndWait();
         }
@@ -539,7 +579,8 @@ public class LeagueController {
     private void goToMainMenu() {
         try {
             Parent root = FXMLLoader.load(
-                    Objects.requireNonNull(getClass().getResource("/MainMenu.fxml")));
+                    Objects.requireNonNull(
+                            getClass().getResource("/MainMenu.fxml")));
             Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
             scene.getStylesheets().add(cssUrl());
             stage.setTitle("Sports Manager - Ultimate Edition");
