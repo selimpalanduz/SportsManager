@@ -79,4 +79,9 @@ public abstract class Team implements Serializable {
     public void addXp(int amount) { this.xp += amount; }
     public boolean isTrainedThisWeek() { return trainedThisWeek; }
     public void setTrainedThisWeek(boolean trained) { this.trainedThisWeek = trained; }
+
+    protected String managerName = "Manager";
+
+    public String getManagerName() { return managerName; }
+    public void setManagerName(String name) { this.managerName = name; }
 }

@@ -1,5 +1,4 @@
 package com.sportsmanager.ui;
-
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -8,7 +7,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import com.sportsmanager.model.common.Team;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+
 import java.util.Objects;
 import java.util.List;
 
@@ -59,7 +58,20 @@ public class TeamSelectController {
 
         VBox titleBlock = new VBox(8, badge, title, subtitle);
         titleBlock.setAlignment(Pos.CENTER);
-
+        
+        TextField managerNameField = new TextField();
+        managerNameField.setPromptText("Enter your manager name");
+        managerNameField.setMaxWidth(420);
+        managerNameField.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.06);" +
+            "-fx-text-fill: white;" +
+            "-fx-prompt-text-fill: rgba(255,255,255,0.4);" +
+            "-fx-border-color: rgba(46,204,113,0.4);" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 8;" +
+            "-fx-background-radius: 8;" +
+            "-fx-padding: 12;" +
+            "-fx-font-size: 14;");
         // ── Team button list ──────────────────────────────────────
         // No glass-panel wrapper — buttons float directly over the stadium BG.
         // Each individual team-button already has its own dark glass style from CSS.
@@ -69,7 +81,17 @@ public class TeamSelectController {
         teamList.setStyle("-fx-background-color: transparent;"); // explicitly transparent
 
         for (Team team : teams) {
-            Button btn = createTeamButton(team);
+            Button btn = new Button(team.getName().toUpperCase());
+            btn.setPrefWidth(380);
+            btn.setPrefHeight(54);
+            btn.getStyleClass().add("team-button");
+            btn.setOnAction(e -> {
+                String mn = managerNameField.getText().trim();
+                if (mn.isEmpty()) mn = "Manager";
+                team.setManagerName(mn);
+                LeagueController lc = new LeagueController(stage, sportType, team);
+                lc.show();
+            });
             teamList.getChildren().add(btn);
         }
 
@@ -99,7 +121,7 @@ public class TeamSelectController {
                         " transparent, rgba(241,196,15,0.45), transparent);");
 
         // ── Inner content — fully transparent, stadium shows through ─
-        VBox content = new VBox(28, topLine, titleBlock, teamList, backBtn, botLine);
+        VBox content = new VBox(28, topLine, titleBlock,managerNameField, teamList, backBtn, botLine);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(40, 40, 40, 40));
         content.setStyle("-fx-background-color: transparent;");
@@ -123,15 +145,5 @@ public class TeamSelectController {
         stage.show();
     }
 
-    private Button createTeamButton(Team team) {
-        Button btn = new Button(team.getName().toUpperCase());
-        btn.setPrefWidth(380);
-        btn.setPrefHeight(54);
-        btn.getStyleClass().add("team-button");
-        btn.setOnAction(e -> {
-            LeagueController lc = new LeagueController(stage, sportType, team);
-            lc.show();
-        });
-        return btn;
-    }
+    
 }

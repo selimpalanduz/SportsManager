@@ -112,25 +112,42 @@ public class LeagueController {
     private void setupLeague() {
         List<Team> teams = new ArrayList<>();
         Random random = new Random();
-        NameGenerator nameGen = new NameGenerator();
+        NameGenerator nameGen = new NameGenerator(sportType.equalsIgnoreCase("volleyball"));
+
+        String[] footballPositions = {
+            "Goalkeeper", "Defender", "Defender", "Defender", "Defender",
+            "Midfielder", "Midfielder", "Midfielder", "Midfielder",
+            "Forward", "Forward"
+        };
+
+        String[] volleyballPositions = {
+            "Setter", "Libero", "Outside Hitter", "Outside Hitter",
+            "Middle Blocker", "Opposite"
+        };
 
         for (String name : TEAM_NAMES) {
             Team team;
             if (sportType.equalsIgnoreCase("football")) {
                 FootballTeam ft = new FootballTeam(name);
-                for (int i = 0; i < 16; i++) {
-                    ft.addPlayer(new FootballPlayer(
-                            nameGen.generate(),
-                            60 + random.nextInt(30)));
+                for (int i = 0; i < 11; i++) {
+                    FootballPlayer p = new FootballPlayer(
+                        nameGen.generate(),
+                        60 + random.nextInt(30),
+                        footballPositions[i]
+                    );
+                    ft.addPlayer(p);
                 }
                 ft.addCoach(new FootballCoach(nameGen.generateCoachName(), random.nextInt(10) + 1));
                 team = ft;
             } else {
                 VolleyballTeam vt = new VolleyballTeam(name);
-                for (int i = 0; i < 12; i++) {
-                    vt.addPlayer(new VolleyballPlayer(
-                            nameGen.generate(),
-                            60 + random.nextInt(30)));
+                for (int i = 0; i < 6; i++) {
+                    VolleyballPlayer p = new VolleyballPlayer(
+                        nameGen.generate(),
+                        60 + random.nextInt(30),
+                        volleyballPositions[i]
+                    );
+                    vt.addPlayer(p);
                 }
                 vt.addCoach(new VolleyballCoach(nameGen.generateCoachName(), random.nextInt(10) + 1));
                 team = vt;
@@ -138,7 +155,7 @@ public class LeagueController {
             teams.add(team);
         }
 
-        league = leagueManager.createLeague(sport.getSportName() + " League", teams, sport);
+        league = leagueManager.createLeague(sport.getSportName() + " League", teams);
         List<StandingsEntry> standings = leagueManager.calcStandings(league);
         league.setStandings(standings);
     }
@@ -167,6 +184,27 @@ public class LeagueController {
         simulateBtn.setPrefWidth(220);
         simulateBtn.setPrefHeight(48);
         simulateBtn.setOnAction(e -> simulateWeek(table));
+        
+        Button myTeamBtn = new Button("👤  MY TEAM");
+        myTeamBtn.setPrefWidth(180);
+        myTeamBtn.setPrefHeight(50);
+        myTeamBtn.getStyleClass().add("back-button");
+        myTeamBtn.setOnAction(e -> {
+            if (userTeam != null) {
+                Team teamInLeague = null;
+                for (Team t : league.getTeams()) {
+                    if (t.getName().equals(userTeam.getName())) {
+                        teamInLeague = t;
+                        break;
+                    }
+                }
+                if (teamInLeague != null) {
+                    TeamController tc = new TeamController(stage, sportType, teamInLeague, league, leagueManager, teamInLeague);
+                    tc.setOnBack(() -> show());
+                    tc.show();
+                }
+            }
+        });
 
         Button scheduleBtn = new Button("📅  SCHEDULE");
         scheduleBtn.setPrefWidth(160);
@@ -186,7 +224,7 @@ public class LeagueController {
         backBtn.getStyleClass().add("back-button");
         backBtn.setOnAction(e -> goToMainMenu());
 
-        HBox buttons = new HBox(12, simulateBtn, scheduleBtn, saveBtn, backBtn);
+        HBox buttons = new HBox(12, simulateBtn,myTeamBtn, scheduleBtn, saveBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
         Rectangle botLine = new Rectangle(SCENE_WIDTH - 60, 2);

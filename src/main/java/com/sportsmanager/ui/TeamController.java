@@ -52,6 +52,11 @@ public class TeamController {
         Label xpLabel = new Label("⚡ TEAM XP: " + team.getXp());
         xpLabel.getStyleClass().add("vs-label");
         xpLabel.setStyle("-fx-font-size: 16px;");
+        Label managerLabel = null;
+        if (userTeam != null && userTeam.equals(team) && team.getManagerName() != null) {
+        managerLabel = new Label("Manager: " + team.getManagerName());
+        managerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: rgba(46,204,113,0.85); -fx-font-weight: bold;");
+        }
 
         Label rosterTitle = new Label("ROSTER");
         rosterTitle.getStyleClass().add("period-label");
@@ -92,16 +97,10 @@ public class TeamController {
         HBox buttons = new HBox(20, trainBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(
-                15,
-                title,
-                xpLabel,
-                rosterTitle,
-                playersTable,
-                coachTitle,
-                coachesTable,
-                buttons
-        );
+        VBox layout = new VBox(15);
+        layout.getChildren().addAll(title, xpLabel);
+        if (managerLabel != null) layout.getChildren().add(managerLabel);
+        layout.getChildren().addAll(rosterTitle, playersTable, coachTitle, coachesTable, buttons);
 
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(30));
