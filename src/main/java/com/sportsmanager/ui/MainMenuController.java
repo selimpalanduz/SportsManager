@@ -6,13 +6,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene. Scene;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
 
 import static com.sportsmanager.Main.SCENE_HEIGHT;
 import static com.sportsmanager.Main.SCENE_WIDTH;
@@ -42,7 +41,7 @@ public class MainMenuController {
         try {
             GameState state = SaveManager.load(file);
             new LeagueController(stage, state).show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             new Alert(Alert.AlertType.ERROR,
                     "Failed to load: " + e.getMessage()).showAndWait();
         }

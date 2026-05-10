@@ -1,21 +1,17 @@
 package com.sportsmanager.ui;
 
 import com.sportsmanager.core.LeagueManager;
-import com.sportsmanager.model.common.Coach;
-import com.sportsmanager.model.common.League;
-import com.sportsmanager.model.common.Player;
-import com.sportsmanager.model.common.Team;
+import com.sportsmanager.model.common.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
+import static com.sportsmanager.Main.SCENE_HEIGHT;
+import static com.sportsmanager.Main.SCENE_WIDTH;
 
 public class TeamController {
 
@@ -26,11 +22,16 @@ public class TeamController {
     private final LeagueManager leagueManager;
     private final Team userTeam;
 
-
     private Runnable onBack;
 
-    public TeamController(Stage stage, String sportType, Team team,
-                          League league, LeagueManager leagueManager, Team userTeam) {
+    public TeamController(
+            Stage stage,
+            String sportType,
+            Team team,
+            League league,
+            LeagueManager leagueManager,
+            Team userTeam
+    ) {
         this.stage = stage;
         this.sportType = sportType;
         this.team = team;
@@ -44,122 +45,172 @@ public class TeamController {
     }
 
     public void show() {
-        Label title = new Label(team.getName());
-        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        String tag = (userTeam != null && userTeam.equals(team))
-                ? "Your Team - Roster & Coaching Staff"
-                : "Roster & Coaching Staff";
-        Label subtitle = new Label(tag);
-        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #aaaaaa;");
-        
-        Label xpLabel = new Label("⚡ XP: " + team.getXp());
-        xpLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;");
-       
-        Label rosterLabel = new Label("Players");
-        rosterLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+        Label title = new Label(team.getName().toUpperCase());
+        title.getStyleClass().add("game-title");
+
+        Label xpLabel = new Label("⚡ TEAM XP: " + team.getXp());
+        xpLabel.getStyleClass().add("vs-label");
+        xpLabel.setStyle("-fx-font-size: 16px;");
+
+        Label rosterTitle = new Label("ROSTER");
+        rosterTitle.getStyleClass().add("period-label");
 
         TableView<Player> playersTable = createPlayersTable();
 
-        Label coachLabel = new Label("Coaches");
-        coachLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+        Label coachTitle = new Label("COACHING STAFF");
+        coachTitle.getStyleClass().add("period-label");
 
         TableView<Coach> coachesTable = createCoachesTable();
 
-        Button trainBtn = new Button("Train Team (+100 XP)");
-        trainBtn.setPrefWidth(200);
-        trainBtn.setPrefHeight(45);
-        trainBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;");
-        boolean canTrain = userTeam != null && team.getName().equals(userTeam.getName()) && !team.isTrainedThisWeek();
+        Button trainBtn = new Button("💪 TRAIN TEAM (+100 XP)");
+        trainBtn.getStyleClass().add("start-button");
+
+        boolean canTrain =
+                userTeam != null
+                        && team.getName().equals(userTeam.getName())
+                        && !team.isTrainedThisWeek();
+
         trainBtn.setDisable(!canTrain);
-        if (team.isTrainedThisWeek()) {
-            trainBtn.setText("Already Trained This Week");
-        } else if (!canTrain) {
-            trainBtn.setText("Cannot Train Other Teams");
-        }
 
         trainBtn.setOnAction(e -> {
             team.addXp(100);
             team.setTrainedThisWeek(true);
-            trainBtn.setDisable(true);
-            trainBtn.setText("Already Trained");
+            show();
         });
-        Button backBtn = new Button("Back to League");
-        backBtn.setPrefWidth(180);
-        backBtn.setPrefHeight(45);
-        backBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;");
-        backBtn.setOnAction(e -> goBack());
 
-        HBox buttons = new HBox(15,trainBtn, backBtn);
+        Button backBtn = new Button("← BACK TO LEAGUE");
+        backBtn.getStyleClass().add("back-button");
+        backBtn.setPrefWidth(200);
+
+        backBtn.setOnAction(e -> {
+            if (onBack != null) {
+                onBack.run();
+            }
+        });
+
+        HBox buttons = new HBox(20, trainBtn, backBtn);
         buttons.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(15);
-        layout.setAlignment(Pos.TOP_CENTER);
-        layout.setPadding(new Insets(30));
-        layout.setStyle("-fx-background-color: #1E1E2E;");
-        layout.getChildren().addAll(title, subtitle, xpLabel, rosterLabel, playersTable, coachLabel, coachesTable, buttons);
+        VBox layout = new VBox(
+                15,
+                title,
+                xpLabel,
+                rosterTitle,
+                playersTable,
+                coachTitle,
+                coachesTable,
+                buttons
+        );
 
-        Scene scene = new Scene(layout, 750, 650);
-        stage.setTitle("Team - " + team.getName());
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(30));
+        layout.getStyleClass().add("main-background");
+
+        Scene scene = new Scene(layout, SCENE_WIDTH, SCENE_HEIGHT);
+
+        scene.getStylesheets().add(
+                getClass().getResource("/style.css").toExternalForm()
+        );
+
         stage.setScene(scene);
         stage.show();
     }
 
     private TableView<Player> createPlayersTable() {
+
         TableView<Player> table = new TableView<>();
-        table.setStyle("-fx-background-color: #2D2D3E;");
-        table.setPrefHeight(280);
 
-        TableColumn<Player, String> nameCol = new TableColumn<>("Name");
-        nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
-        nameCol.setPrefWidth(220);
+        table.getStyleClass().add("standings-table");
+        table.setPrefHeight(250);
 
-        TableColumn<Player, String> positionCol = new TableColumn<>("Position");
-        positionCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getPosition()));
-        positionCol.setPrefWidth(150);
+        TableColumn<Player, String> nameCol =
+                new TableColumn<>("Player Name");
 
-        TableColumn<Player, String> skillCol = new TableColumn<>("Skill");
-        skillCol.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getOverallSkill())));
+        nameCol.setCellValueFactory(
+                d -> new SimpleStringProperty(d.getValue().getName())
+        );
+
+        nameCol.setPrefWidth(200);
+
+        TableColumn<Player, String> posCol =
+                new TableColumn<>("Pos");
+
+        posCol.setCellValueFactory(
+                d -> new SimpleStringProperty(d.getValue().getPosition())
+        );
+
+        posCol.setPrefWidth(100);
+
+        TableColumn<Player, String> skillCol =
+                new TableColumn<>("Skill");
+
+        skillCol.setCellValueFactory(
+                d -> new SimpleStringProperty(
+                        String.valueOf(d.getValue().getOverallSkill())
+                )
+        );
+
         skillCol.setPrefWidth(80);
 
-        TableColumn<Player, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(d -> {
-            Player p = d.getValue();
-            if (p.isInjured()) {
-                return new SimpleStringProperty("Injured (" + p.getInjuryDuration() + " games)");
-            }
-            return new SimpleStringProperty("Available");
-        });
-        statusCol.setPrefWidth(180);
+        TableColumn<Player, String> statusCol =
+                new TableColumn<>("Status");
 
-        table.getColumns().addAll(nameCol, positionCol, skillCol, statusCol);
+        statusCol.setCellValueFactory(d ->
+                new SimpleStringProperty(
+                        d.getValue().isInjured()
+                                ? "INJURED (" +
+                                d.getValue().getInjuryDuration() +
+                                "w)"
+                                : "Fit"
+                )
+        );
+
+        statusCol.setPrefWidth(120);
+
+        table.getColumns().addAll(
+                nameCol,
+                posCol,
+                skillCol,
+                statusCol
+        );
+
         table.getItems().addAll(team.getRoster());
+
         return table;
     }
 
     private TableView<Coach> createCoachesTable() {
-        TableView<Coach> table = new TableView<>();
-        table.setStyle("-fx-background-color: #2D2D3E;");
-        table.setPrefHeight(140);
 
-        TableColumn<Coach, String> nameCol = new TableColumn<>("Coach");
-        nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
+        TableView<Coach> table = new TableView<>();
+
+        table.getStyleClass().add("standings-table");
+        table.setPrefHeight(100);
+
+        TableColumn<Coach, String> nameCol =
+                new TableColumn<>("Coach Name");
+
+        nameCol.setCellValueFactory(
+                d -> new SimpleStringProperty(d.getValue().getName())
+        );
+
         nameCol.setPrefWidth(300);
 
-        TableColumn<Coach, String> expCol = new TableColumn<>("Experience");
-        expCol.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getExperience())));
+        TableColumn<Coach, String> expCol =
+                new TableColumn<>("Experience");
+
+        expCol.setCellValueFactory(
+                d -> new SimpleStringProperty(
+                        String.valueOf(d.getValue().getExperience())
+                )
+        );
+
         expCol.setPrefWidth(150);
 
         table.getColumns().addAll(nameCol, expCol);
-        table.getItems().addAll(team.getCoaches());
-        return table;
-    }
 
-    private void goBack() {
-        if (onBack != null) {
-            onBack.run();
-            return;
-        }
-        new LeagueController(stage, sportType, userTeam).show();
+        table.getItems().addAll(team.getCoaches());
+
+        return table;
     }
 }

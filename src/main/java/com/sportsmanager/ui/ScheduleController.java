@@ -9,19 +9,19 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import static com.sportsmanager.Main.SCENE_HEIGHT;
+import static com.sportsmanager.Main.SCENE_WIDTH;
 
 public class ScheduleController {
 
@@ -30,15 +30,9 @@ public class ScheduleController {
     private final League league;
     private final LeagueManager leagueManager;
     private final Team userTeam;
-
     private Runnable onBack;
 
-    public ScheduleController(Stage stage,
-                              String sportType,
-                              League league,
-                              LeagueManager leagueManager,
-                              Team userTeam) {
-
+    public ScheduleController(Stage stage, String sportType, League league, LeagueManager leagueManager, Team userTeam) {
         this.stage = stage;
         this.sportType = sportType;
         this.league = league;
@@ -52,200 +46,113 @@ public class ScheduleController {
 
     public void show() {
 
-        Label title = new Label("Schedule");
+        Rectangle topLine = new Rectangle(SCENE_WIDTH - 60, 2);
+        topLine.setStyle("-fx-fill: linear-gradient(to right, transparent, #2ecc71, transparent);");
 
-        title.setStyle(
-                "-fx-font-size: 26px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-text-fill: white;"
-        );
+        Label title = new Label("SEASON SCHEDULE");
+        title.getStyleClass().add("title-label");
 
-        ChoiceBox<String> filter = new ChoiceBox<>();
+        Label filterLabel = new Label("Filter by Team:");
+        filterLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
-        filter.getItems().add("All Teams");
-
+        ChoiceBox<String> teamFilter = new ChoiceBox<>();
+        teamFilter.getStyleClass().add("custom-combo");
+        teamFilter.getItems().add("All Teams");
         for (Team t : league.getTeams()) {
-
-            filter.getItems().add(t.getName());
+            teamFilter.getItems().add(t.getName());
         }
+        teamFilter.setValue("All Teams");
 
-        filter.setValue(
-                userTeam != null
-                        ? userTeam.getName()
-                        : "All Teams"
-        );
+        HBox filterBox = new HBox(10, filterLabel, teamFilter);
+        filterBox.setAlignment(Pos.CENTER);
 
-        TableView<Row> table = buildTable();
+        TableView<Row> table = new TableView<>();
+        table.getStyleClass().add("standings-table");
+        table.setPrefHeight(450);
 
-        loadRows(table, filter.getValue());
+        TableColumn<Row, String> weekCol = new TableColumn<>("Week");
+        weekCol.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().week)));
+        weekCol.setPrefWidth(80);
 
-        filter.setOnAction(
-                e -> loadRows(table, filter.getValue())
-        );
+        TableColumn<Row, String> homeCol = new TableColumn<>("Home Team");
+        homeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().home));
+        homeCol.setPrefWidth(200);
 
-        Button back = new Button("Back");
+        TableColumn<Row, String> vsCol = new TableColumn<>("VS");
+        vsCol.setCellValueFactory(d -> new SimpleStringProperty("vs"));
+        vsCol.setPrefWidth(50);
 
-        back.setPrefWidth(140);
+        TableColumn<Row, String> awayCol = new TableColumn<>("Away Team");
+        awayCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().away));
+        awayCol.setPrefWidth(200);
 
-        back.setPrefHeight(40);
+        TableColumn<Row, String> scoreCol = new TableColumn<>("Result");
+        scoreCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().score));
+        scoreCol.setPrefWidth(120);
 
-        back.setStyle(
-                "-fx-background-color: #e74c3c; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-background-radius: 8;"
-        );
+        table.getColumns().addAll(weekCol, homeCol, vsCol, awayCol, scoreCol);
 
-        back.setOnAction(e -> {
-
-            if (onBack != null) {
-
-                onBack.run();
-            }
+        teamFilter.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            updateTable(table, newV);
         });
 
-        HBox top = new HBox(
-                15,
-                new Label("Filter:"),
-                filter
-        );
+        updateTable(table, "All Teams");
 
-        top.setAlignment(Pos.CENTER_LEFT);
 
-        VBox layout = new VBox(
-                15,
-                title,
-                top,
-                table,
-                back
-        );
+        Button backBtn = new Button("← BACK TO LEAGUE");
+        backBtn.getStyleClass().add("back-button");
+        backBtn.setPrefWidth(220);
+        backBtn.setPrefHeight(45);
+        backBtn.setOnAction(e -> {
+            if (onBack != null) onBack.run();
+        });
 
-        layout.setAlignment(Pos.TOP_CENTER);
+        Rectangle botLine = new Rectangle(SCENE_WIDTH - 60, 2);
+        botLine.setStyle("-fx-fill: linear-gradient(to right, transparent, rgba(241,196,15,0.55), transparent);");
 
-        layout.setPadding(new Insets(25));
+        VBox layout = new VBox(20, topLine, title, filterBox, table, backBtn, botLine);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(30));
+        layout.getStyleClass().add("main-background");
 
-        layout.setStyle("-fx-background-color: #1E1E2E;");
-
-        Scene scene = new Scene(layout, 750, 600);
-
-        stage.setTitle("Schedule - " + league.getName());
-
+        Scene scene = new Scene(layout, SCENE_WIDTH, SCENE_HEIGHT);
+        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         stage.setScene(scene);
-
         stage.show();
     }
 
-    private TableView<Row> buildTable() {
-
-        TableView<Row> table = new TableView<>();
-
-        table.setStyle("-fx-background-color: #2D2D3E;");
-
-        TableColumn<Row, String> wk = new TableColumn<>("Week");
-
-        wk.setCellValueFactory(
-                d -> new SimpleStringProperty(
-                        String.valueOf(d.getValue().week)
-                )
-        );
-
-        wk.setPrefWidth(60);
-
-        TableColumn<Row, String> home = new TableColumn<>("Home");
-
-        home.setCellValueFactory(
-                d -> new SimpleStringProperty(d.getValue().home)
-        );
-
-        home.setPrefWidth(220);
-
-        TableColumn<Row, String> score = new TableColumn<>("Result");
-
-        score.setCellValueFactory(
-                d -> new SimpleStringProperty(d.getValue().score)
-        );
-
-        score.setPrefWidth(120);
-
-        TableColumn<Row, String> away = new TableColumn<>("Away");
-
-        away.setCellValueFactory(
-                d -> new SimpleStringProperty(d.getValue().away)
-        );
-
-        away.setPrefWidth(220);
-
-        table.getColumns().addAll(
-                wk,
-                home,
-                score,
-                away
-        );
-
-        return table;
-    }
-
-    private void loadRows(TableView<Row> table, String filter) {
-
+    private void updateTable(TableView<Row> table, String filter) {
         table.getItems().clear();
-
-        Map<Integer, List<Match>> all =
-                league.getFixture().getAllMatches();
-
+        Map<Integer, List<Match>> all = league.getFixture().getAllMatches();
         List<Integer> weeks = new ArrayList<>(all.keySet());
-
         weeks.sort(Comparator.naturalOrder());
 
         for (int w : weeks) {
-
             for (Match m : all.get(w)) {
-
-                if (
-                        filter != null
-                                && !"All Teams".equals(filter)
-                                && !m.getHomeTeam().getName().equals(filter)
-                                && !m.getAwayTeam().getName().equals(filter)
-                ) {
-
+                if (filter != null && !"All Teams".equals(filter) &&
+                        !m.getHomeTeam().getName().equals(filter) &&
+                        !m.getAwayTeam().getName().equals(filter)) {
                     continue;
                 }
-
                 table.getItems().add(new Row(w, m));
             }
         }
     }
 
     public static class Row {
-
         public final int week;
-
         public final String home;
-
         public final String away;
-
         public final String score;
 
         public Row(int week, Match m) {
-
             this.week = week;
-
             this.home = m.getHomeTeam().getName();
-
             this.away = m.getAwayTeam().getName();
-
             if (m.isPlayed()) {
-
                 MatchResult r = m.getResult();
-
-                this.score = (
-                        r != null
-                )
-                        ? r.getTotalHomeScore()
-                        + " - "
-                        + r.getTotalAwayScore()
-                        : "Played";
-
+                this.score = (r != null) ? r.getTotalHomeScore() + " - " + r.getTotalAwayScore() : "Played";
             } else {
-
                 this.score = "—";
             }
         }

@@ -14,11 +14,11 @@
   Controller: ChampionshipController.initData(stage, winner)
 -->
 <StackPane
-    prefHeight="720.0" prefWidth="1280.0"
-    stylesheets="@style.css"
-    xmlns="http://javafx.com/javafx/17"
-    xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="com.sportsmanager.ui.ChampionshipController">
+        prefHeight="720.0" prefWidth="1280.0"
+        stylesheets="@style.css"
+        xmlns="http://javafx.com/javafx/17"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="com.sportsmanager.ui.ChampionshipController">
 
     <!-- Deep background -->
     <VBox prefHeight="720" prefWidth="1280"
