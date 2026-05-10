@@ -25,22 +25,20 @@ import static com.sportsmanager.Main.SCENE_WIDTH;
 
 public class ScheduleController {
 
-    private final Stage stage;
+    private final Stage  stage;
     private final League league;
-    private final Team userTeam;
-    private final int currentWeek;
+    private final Team   userTeam;
+    private final int    currentWeek;
     private Runnable onBack;
 
     public ScheduleController(Stage stage, League league, Team userTeam, int currentWeek) {
-        this.stage = stage;
-        this.league = league;
-        this.userTeam = userTeam;
+        this.stage       = stage;
+        this.league      = league;
+        this.userTeam    = userTeam;
         this.currentWeek = currentWeek;
     }
 
-    public void setOnBack(Runnable onBack) {
-        this.onBack = onBack;
-    }
+    public void setOnBack(Runnable onBack) { this.onBack = onBack; }
 
     private String cssUrl() {
         return Objects.requireNonNull(getClass().getResource("/style.css")).toExternalForm();
@@ -60,9 +58,11 @@ public class ScheduleController {
         VBox header = new VBox(4, badge, title);
         header.setAlignment(Pos.CENTER);
 
-        VBox weeksBox = new VBox(18);
+        // ── Week blocks ───────────────────────────────────────────
+        VBox weeksBox = new VBox(14);
         weeksBox.setAlignment(Pos.TOP_CENTER);
-        weeksBox.setMaxWidth(820);
+        weeksBox.setMaxWidth(860);
+        weeksBox.setPadding(new Insets(0, 0, 10, 0));
 
         Map<Integer, List<Match>> weekly = new TreeMap<>(league.getFixture().getAllMatches());
         for (Map.Entry<Integer, List<Match>> e : weekly.entrySet()) {
@@ -72,16 +72,15 @@ public class ScheduleController {
         ScrollPane scroll = new ScrollPane(weeksBox);
         scroll.setFitToWidth(true);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.getStyleClass().add("scroll-pane");
         scroll.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
-        scroll.setPrefViewportHeight(440);
+        scroll.setPrefViewportHeight(480);
 
         Button backBtn = new Button("← BACK");
         backBtn.setPrefWidth(150);
         backBtn.setPrefHeight(46);
         backBtn.getStyleClass().add("back-button");
-        backBtn.setOnAction(ev -> {
-            if (onBack != null) onBack.run();
-        });
+        backBtn.setOnAction(ev -> { if (onBack != null) onBack.run(); });
 
         Rectangle botLine = new Rectangle(SCENE_WIDTH - 60, 2);
         botLine.setStyle("-fx-fill: linear-gradient(to right, transparent, rgba(241,196,15,0.45), transparent);");
@@ -101,62 +100,67 @@ public class ScheduleController {
         stage.show();
     }
 
+    // ── Week block — now uses .schedule-week-block CSS class ──────
     private VBox buildWeekBlock(int week, List<Match> matches) {
         boolean isCurrent = (week == currentWeek);
-        String accent = isCurrent ? "rgba(46,204,113,0.85)" : "rgba(255,255,255,0.40)";
+        String accentColor = isCurrent ? "rgba(46,204,113,0.90)" : "rgba(255,255,255,0.45)";
 
         Label weekLbl = new Label("WEEK  " + week + (isCurrent ? "   ◀  THIS WEEK" : ""));
-        weekLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;"
-                + "-fx-text-fill: " + accent + "; -fx-letter-spacing: 3px;");
+        weekLbl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;"
+                + "-fx-text-fill: " + accentColor + "; -fx-letter-spacing: 3px;");
 
-        VBox box = new VBox(6, weekLbl);
-        box.setStyle("-fx-background-color: rgba(255,255,255,0.04);"
-                + "-fx-border-color: rgba(255,255,255,0.08); -fx-border-width: 1;"
-                + "-fx-border-radius: 12; -fx-background-radius: 12;"
-                + "-fx-padding: 14 18 14 18;");
-        box.setMaxWidth(820);
+        VBox box = new VBox(4, weekLbl);
+        // ← CSS class instead of inline style — dark enough to kill glare
+        box.getStyleClass().add("schedule-week-block");
+        box.setPadding(new Insets(14, 20, 14, 20));
+        box.setMaxWidth(860);
 
-        for (Match m : matches) {
-            box.getChildren().add(matchRow(m));
+        // Extra left border highlight for current week
+        if (isCurrent) {
+            box.setStyle("-fx-border-color: rgba(46,204,113,0.50) rgba(255,255,255,0.10)"
+                    + " rgba(255,255,255,0.10) rgba(46,204,113,0.50);"
+                    + "-fx-border-width: 0 0 0 3;");
         }
+
+        for (Match m : matches) box.getChildren().add(matchRow(m));
         return box;
     }
 
     private HBox matchRow(Match m) {
         String homeName = m.getHomeTeam().getName();
         String awayName = m.getAwayTeam().getName();
-        boolean userInvolved = userTeam != null
-                && (homeName.equals(userTeam.getName()) || awayName.equals(userTeam.getName()));
+        boolean userHome = userTeam != null && homeName.equals(userTeam.getName());
+        boolean userAway = userTeam != null && awayName.equals(userTeam.getName());
 
         String scoreText;
         if (m.isPlayed() && m.getResult() != null) {
             scoreText = m.getResult().getTotalHomeScore() + " : " + m.getResult().getTotalAwayScore();
         } else {
-            scoreText = " vs ";
+            scoreText = "vs";
         }
 
         Label home = new Label(homeName.toUpperCase());
-        home.setPrefWidth(280);
-        home.setStyle(rowStyle(userInvolved && homeName.equals(userTeam.getName()), true));
+        home.setPrefWidth(290);
+        home.setStyle(rowStyle(userHome, true));
 
         Label score = new Label(scoreText);
-        score.setPrefWidth(90);
+        score.setPrefWidth(80);
         score.setAlignment(Pos.CENTER);
         score.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;"
                 + "-fx-text-fill: rgba(241,196,15,0.95); -fx-alignment: center;");
 
         Label away = new Label(awayName.toUpperCase());
-        away.setPrefWidth(280);
-        away.setStyle(rowStyle(userInvolved && awayName.equals(userTeam.getName()), false));
+        away.setPrefWidth(290);
+        away.setStyle(rowStyle(userAway, false));
 
         HBox row = new HBox(8, home, score, away);
         row.setAlignment(Pos.CENTER);
-        row.setPadding(new Insets(4, 0, 4, 0));
+        row.setPadding(new Insets(5, 0, 5, 0));
         return row;
     }
 
-    private String rowStyle(boolean isUserSide, boolean alignRight) {
-        String color = isUserSide ? "rgba(46,204,113,0.95)" : "rgba(255,255,255,0.78)";
+    private String rowStyle(boolean isUser, boolean alignRight) {
+        String color = isUser ? "rgba(46,204,113,0.95)" : "rgba(255,255,255,0.88)";
         String align = alignRight ? "center-right" : "center-left";
         return "-fx-text-fill: " + color + "; -fx-font-weight: bold;"
                 + "-fx-font-size: 13px; -fx-alignment: " + align + ";";

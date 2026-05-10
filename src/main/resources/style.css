@@ -1,16 +1,7 @@
 /* ================================================================
-   SPORTS MANAGER PRO — Stadium Immersion Theme v4.0
+   SPORTS MANAGER PRO — Stadium Immersion Theme v5.0
    EA Sports FC / FIFA UI  |  Glassmorphism + Stadium BG
-   JavaFX 17+  |  Koyu Cam Efekti — Maksimum Okunabilirlik
-   ================================================================
-
-   KURULUM:
-   1. Bu dosyayı src/main/resources/style.css olarak kaydet.
-   2. fifa-19-stadium-4k-of.jpg dosyasını src/main/resources/ altına koy.
-   3. Java kodunda sahne oluşturulduktan sonra:
-      scene.getStylesheets().add(
-          getClass().getResource("/style.css").toExternalForm());
-
+   JavaFX 17+  |  Maximum Readability — Dark Frosted Glass
    ================================================================ */
 
 /* ── ROOT ────────────────────────────────────────────────────── */
@@ -21,25 +12,22 @@
 }
 
 /* ================================================================
-   STADYUM ARKAPLAN — .main-background
-   Java'da root pane'e:  root.getStyleClass().add("main-background");
+   STADIUM BACKGROUND — .main-background
    ================================================================ */
 .main-background {
     -fx-background-image: url("fifa-19-stadium-4k-of.jpg");
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;
-    /* Karartma katmanı: %90+ opaklık — stadyum seçilebilir ama yazılar öncelikli */
     -fx-background-color:
         linear-gradient(
             to bottom,
-            rgba(4, 6, 18, 0.90) 0%,
-            rgba(6, 8, 22, 0.93) 40%,
-            rgba(3, 4, 12, 0.97) 100%
+            rgba(2, 3, 10, 0.92) 0%,
+            rgba(4, 5, 14, 0.94) 40%,
+            rgba(2, 3,  8, 0.97) 100%
         );
 }
 
-/* Stadyum BG olmayan ekranlar için sade gradient */
 .main-container {
     -fx-background-color:
         linear-gradient(to bottom, #07070f 0%, #0b0d1a 55%, #07070f 100%);
@@ -68,7 +56,6 @@
     -fx-font-weight: normal;
 }
 
-/* Küçük yeşil etiket */
 .vs-label {
     -fx-font-size: 11px;
     -fx-font-weight: bold;
@@ -82,7 +69,6 @@
     -fx-font-weight: normal;
 }
 
-/* Maç skoru */
 .score-label {
     -fx-font-size: 56px;
     -fx-font-weight: bold;
@@ -107,7 +93,6 @@
     -fx-font-weight: bold;
 }
 
-/* Şampiyon ekranı */
 .champion-name {
     -fx-font-size: 52px;
     -fx-font-weight: bold;
@@ -137,12 +122,24 @@
     -fx-text-fill: rgba(46,204,113,0.95);
 }
 
-/* ================================================================
-   GLASSMORPHISM BUTONLAR — KOYU CAM  (v4.0)
-   Eski: rgba(255,255,255,0.05-0.08)  →  Yeni: rgba(15,18,25,0.82+)
-   ================================================================ */
+/* ── Lineup-specific labels ───────────────────────────────────── */
+.lineup-section-header {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgba(46,204,113,0.90);
+    -fx-letter-spacing: 3px;
+}
 
-/* Ana menü / genel menü butonu */
+.lineup-sub-header {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgba(241,196,15,0.85);
+    -fx-letter-spacing: 3px;
+}
+
+/* ================================================================
+   BUTTONS — DARK GLASS (v5.0)
+   ================================================================ */
 .menu-button {
     -fx-background-color: rgba(15, 18, 25, 0.82);
     -fx-border-color: rgba(46,204,113,0.40);
@@ -158,15 +155,10 @@
 .menu-button:hover {
     -fx-background-color: rgba(20, 26, 38, 0.92);
     -fx-border-color: rgba(46,204,113,0.80);
-    -fx-text-fill: #ffffff;
     -fx-effect: dropshadow(gaussian, rgba(46,204,113,0.30), 16, 0.22, 0, 0);
 }
-.menu-button:pressed {
-    -fx-scale-x: 0.97; -fx-scale-y: 0.97;
-    -fx-background-color: rgba(46,204,113,0.15);
-}
+.menu-button:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
 
-/* Takım seçim butonu — geniş, FUT kart hissi */
 .team-button {
     -fx-background-color: rgba(15, 18, 25, 0.85);
     -fx-border-color: rgba(255,255,255,0.22);
@@ -182,14 +174,10 @@
 .team-button:hover {
     -fx-background-color: rgba(20, 30, 20, 0.92);
     -fx-border-color: rgba(46,204,113,0.75);
-    -fx-text-fill: #ffffff;
     -fx-effect: dropshadow(gaussian, rgba(46,204,113,0.30), 18, 0.22, 0, 0);
 }
-.team-button:pressed {
-    -fx-scale-x: 0.97; -fx-scale-y: 0.97;
-}
+.team-button:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
 
-/* Yeşil aksiyon butonu (Simulate / Kick Off) */
 .start-button {
     -fx-background-color: rgba(15, 40, 25, 0.90);
     -fx-border-color: rgba(46,204,113,0.70);
@@ -205,13 +193,11 @@
 .start-button:hover {
     -fx-background-color: rgba(20, 55, 35, 0.95);
     -fx-border-color: #2ecc71;
-    -fx-text-fill: #ffffff;
     -fx-effect: dropshadow(gaussian, rgba(46,204,113,0.45), 18, 0.28, 0, 0);
     -fx-scale-x: 1.015; -fx-scale-y: 1.015;
 }
 .start-button:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
 
-/* Kırmızı / nötr "Geri" butonu */
 .back-button {
     -fx-background-color: rgba(30, 10, 10, 0.88);
     -fx-border-color: rgba(231,76,60,0.50);
@@ -227,12 +213,10 @@
 .back-button:hover {
     -fx-background-color: rgba(50, 15, 15, 0.95);
     -fx-border-color: rgba(231,76,60,0.85);
-    -fx-text-fill: white;
     -fx-effect: dropshadow(gaussian, rgba(231,76,60,0.30), 12, 0.18, 0, 0);
 }
 .back-button:pressed { -fx-scale-x: 0.97; -fx-scale-y: 0.97; }
 
-/* Mavi "Finish" butonu */
 .finish-button {
     -fx-background-color: rgba(10, 25, 45, 0.90);
     -fx-border-color: rgba(52,152,219,0.60);
@@ -248,7 +232,6 @@
 .finish-button:hover {
     -fx-background-color: rgba(15, 38, 65, 0.95);
     -fx-border-color: rgba(52,152,219,0.90);
-    -fx-text-fill: white;
     -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.30), 14, 0.18, 0, 0);
     -fx-scale-x: 1.015; -fx-scale-y: 1.015;
 }
@@ -266,76 +249,58 @@
     -fx-text-fill: white;
     -fx-cursor: hand;
 }
-.custom-combo:focused {
-    -fx-border-color: rgba(46,204,113,0.75);
-    -fx-effect: dropshadow(gaussian, rgba(46,204,113,0.20), 10, 0.12, 0, 0);
-}
-.custom-combo .list-cell {
-    -fx-background-color: transparent;
-    -fx-text-fill: #ffffff;
-    -fx-padding: 5 12;
-}
-.custom-combo .list-cell:hover    { -fx-background-color: rgba(46,204,113,0.18); -fx-text-fill: white; }
-.custom-combo .list-cell:selected { -fx-background-color: rgba(46,204,113,0.28); -fx-text-fill: white; }
+.custom-combo:focused { -fx-border-color: rgba(46,204,113,0.75); }
+.custom-combo .list-cell          { -fx-background-color: transparent; -fx-text-fill: #ffffff; -fx-padding: 5 12; }
+.custom-combo .list-cell:hover    { -fx-background-color: rgba(46,204,113,0.18); }
+.custom-combo .list-cell:selected { -fx-background-color: rgba(46,204,113,0.28); }
 .custom-combo .combo-box-popup .list-view {
     -fx-background-color: rgba(8,10,22,0.98);
     -fx-border-color: rgba(46,204,113,0.30);
-    -fx-border-width: 1px;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
+    -fx-border-width: 1px; -fx-border-radius: 8px; -fx-background-radius: 8px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.80), 20, 0, 0, 5);
 }
 .custom-combo .arrow-button { -fx-background-color: transparent; }
 .custom-combo .arrow        { -fx-background-color: rgba(46,204,113,0.85); }
 
 /* ================================================================
-   TABLE VIEW — STANDINGS  (koyu cam kart)
+   TABLE VIEW — STANDINGS
+   Darker rows: rgba(10,12,20,0.92) — beats stadium glare
    ================================================================ */
 .standings-table {
     -fx-background-color: transparent;
     -fx-background-radius: 14px;
-    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-color: rgba(255,255,255,0.12);
     -fx-border-width: 1px;
     -fx-border-radius: 14px;
     -fx-table-cell-border-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.70), 22, 0, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.82), 24, 0, 0, 5);
 }
 .standings-table .virtual-flow .clipped-container .sheet { -fx-background-color: transparent; }
 .standings-table > .virtual-flow > .scroll-bar           { -fx-opacity: 0.25; }
 
-/* Başlık */
 .standings-table .column-header-background {
-    -fx-background-color: rgba(15, 18, 30, 0.90);
-    -fx-border-color: transparent transparent rgba(255,255,255,0.12) transparent;
+    -fx-background-color: rgba(8, 10, 18, 0.96);
+    -fx-border-color: transparent transparent rgba(255,255,255,0.14) transparent;
     -fx-border-width: 0 0 1 0;
     -fx-background-radius: 14px 14px 0 0;
 }
-.standings-table .column-header          { -fx-background-color: transparent; -fx-border-color: transparent; }
-.standings-table .column-header .label   {
-    -fx-text-fill: rgba(255,255,255,0.65);
-    -fx-font-weight: bold;
-    -fx-font-size: 10px;
-}
+.standings-table .column-header        { -fx-background-color: transparent; -fx-border-color: transparent; }
+.standings-table .column-header .label { -fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: bold; -fx-font-size: 10px; }
 .standings-table .column-header-background .filler { -fx-background-color: transparent; }
 .standings-table .column-resize-line               { -fx-background-color: rgba(255,255,255,0.10); }
 
-/* Satırlar */
 .standings-table .table-row-cell {
-    -fx-background-color: rgba(12, 15, 25, 0.80);
-    -fx-border-color: transparent transparent rgba(255,255,255,0.055) transparent;
+    -fx-background-color: rgba(10, 12, 20, 0.92);
+    -fx-border-color: transparent transparent rgba(255,255,255,0.06) transparent;
     -fx-border-width: 0 0 1 0;
     -fx-cursor: hand;
 }
-.standings-table .table-row-cell:even { -fx-background-color: rgba(8, 10, 18, 0.85); }
-.standings-table .table-row-cell:hover {
-    -fx-background-color: rgba(25, 30, 50, 0.92);
-    -fx-border-color: transparent transparent rgba(255,255,255,0.09) transparent;
-}
-.standings-table .table-row-cell:selected { -fx-background-color: rgba(241,196,15,0.12); }
+.standings-table .table-row-cell:even  { -fx-background-color: rgba(6, 8, 15, 0.94); }
+.standings-table .table-row-cell:hover { -fx-background-color: rgba(20, 26, 45, 0.97); }
+.standings-table .table-row-cell:selected { -fx-background-color: rgba(241,196,15,0.14); }
 
-/* Hücreler */
 .standings-table .table-cell {
-    -fx-text-fill: rgba(255,255,255,0.92);
+    -fx-text-fill: rgba(255,255,255,0.95);
     -fx-font-size: 13px;
     -fx-alignment: center;
     -fx-border-color: transparent;
@@ -344,7 +309,44 @@
 .standings-table .placeholder .label { -fx-text-fill: rgba(255,255,255,0.25); }
 
 /* ================================================================
-   TEXT AREA — Canlı Maç Logu
+   SCHEDULE WEEK BLOCK — .schedule-week-block
+   Used in ScheduleController instead of inline style.
+   rgba(8,10,18,0.92) — no stadium glare bleeds through.
+   ================================================================ */
+.schedule-week-block {
+    -fx-background-color: rgba(8, 10, 18, 0.92);
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.82), 18, 0, 0, 4);
+}
+
+/* ================================================================
+   LINEUP PANELS — .lineup-panel / .sub-panel
+   Starting XI = green-accented dark card
+   Substitutes  = gold-accented dark card
+   ================================================================ */
+.lineup-panel {
+    -fx-background-color: rgba(6, 10, 18, 0.93);
+    -fx-border-color: rgba(46,204,113,0.30);
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.82), 20, 0, 0, 4);
+}
+
+.sub-panel {
+    -fx-background-color: rgba(14, 12, 5, 0.93);
+    -fx-border-color: rgba(241,196,15,0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.82), 20, 0, 0, 4);
+}
+
+/* ================================================================
+   MATCH LOG
    ================================================================ */
 .match-log {
     -fx-control-inner-background: rgba(4, 6, 14, 0.96);
@@ -359,9 +361,7 @@
     -fx-highlight-fill: rgba(46,204,113,0.25);
     -fx-highlight-text-fill: white;
 }
-.match-log:focused {
-    -fx-border-color: rgba(255,255,255,0.28);
-}
+.match-log:focused { -fx-border-color: rgba(255,255,255,0.28); }
 .match-log .content {
     -fx-background-color: rgba(4, 6, 14, 0.96);
     -fx-background-radius: 10px;
@@ -369,21 +369,19 @@
 }
 
 /* ================================================================
-   GLASSMORPHISM PANEL  (.glass-panel)  — KOYU CAM (v4.0)
-   Genel amaçlı cam kart — VBox/HBox'a ekle
+   GLASS PANEL (general)
    ================================================================ */
 .glass-panel {
-    -fx-background-color: rgba(12, 15, 22, 0.86);
+    -fx-background-color: rgba(10, 12, 20, 0.90);
     -fx-border-color: rgba(255,255,255,0.12);
     -fx-border-width: 1px;
     -fx-border-radius: 18px;
     -fx-background-radius: 18px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.70), 24, 0, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.76), 24, 0, 0, 5);
 }
 
-/* Şampiyon stats kartı */
 .stats-card {
-    -fx-background-color: rgba(12, 15, 22, 0.88);
+    -fx-background-color: rgba(10, 12, 20, 0.92);
     -fx-border-color: rgba(241,196,15,0.30);
     -fx-border-width: 1px;
     -fx-border-radius: 18px;
@@ -392,49 +390,35 @@
 }
 
 /* ================================================================
-   SEPARATOR
+   SEPARATOR / SCROLL / MENUS / TOOLTIP
    ================================================================ */
-.separator .line {
-    -fx-background-color: rgba(255,255,255,0.10);
-    -fx-border-color: rgba(255,255,255,0.10);
-}
+.separator .line { -fx-background-color: rgba(255,255,255,0.10); -fx-border-color: rgba(255,255,255,0.10); }
 
-/* ================================================================
-   SCROLL BAR
-   ================================================================ */
-.scroll-bar                    { -fx-background-color: transparent; }
-.scroll-bar .thumb             { -fx-background-color: rgba(255,255,255,0.18); -fx-background-radius: 4px; }
-.scroll-bar .thumb:hover       { -fx-background-color: rgba(255,255,255,0.30); }
-.scroll-bar .track             { -fx-background-color: rgba(255,255,255,0.03); -fx-background-radius: 4px; }
+.scroll-bar                   { -fx-background-color: transparent; }
+.scroll-bar .thumb            { -fx-background-color: rgba(255,255,255,0.18); -fx-background-radius: 4px; }
+.scroll-bar .thumb:hover      { -fx-background-color: rgba(255,255,255,0.30); }
+.scroll-bar .track            { -fx-background-color: rgba(255,255,255,0.03); -fx-background-radius: 4px; }
 .scroll-bar .increment-button,
-.scroll-bar .decrement-button  { -fx-background-color: transparent; -fx-opacity: 0; -fx-pref-width: 0; -fx-pref-height: 0; }
+.scroll-bar .decrement-button { -fx-background-color: transparent; -fx-opacity: 0; -fx-pref-width: 0; -fx-pref-height: 0; }
 
-/* ScrollPane kendisi şeffaf */
-.scroll-pane                   { -fx-background-color: transparent; -fx-border-color: transparent; }
-.scroll-pane > .viewport       { -fx-background-color: transparent; }
+.scroll-pane             { -fx-background-color: transparent; -fx-border-color: transparent; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
 
-/* ================================================================
-   CONTEXT MENU / TOOLTIP
-   ================================================================ */
 .context-menu {
     -fx-background-color: rgba(6,8,18,0.98);
     -fx-border-color: rgba(255,255,255,0.14);
-    -fx-border-width: 1px;
-    -fx-background-radius: 8px;
-    -fx-border-radius: 8px;
+    -fx-border-width: 1px; -fx-background-radius: 8px; -fx-border-radius: 8px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.80), 16, 0, 0, 5);
 }
-.menu-item            { -fx-background-color: transparent; }
-.menu-item:hover      { -fx-background-color: rgba(255,255,255,0.09); }
-.menu-item .label     { -fx-text-fill: rgba(255,255,255,0.90); }
+.menu-item        { -fx-background-color: transparent; }
+.menu-item:hover  { -fx-background-color: rgba(255,255,255,0.09); }
+.menu-item .label { -fx-text-fill: rgba(255,255,255,0.90); }
 
 .tooltip {
     -fx-background-color: rgba(6,8,18,0.97);
     -fx-border-color: rgba(255,255,255,0.14);
-    -fx-border-width: 1px;
+    -fx-border-width: 1px; -fx-background-radius: 6px; -fx-border-radius: 6px;
     -fx-text-fill: rgba(255,255,255,0.92);
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
     -fx-font-size: 11px;
 }
 
